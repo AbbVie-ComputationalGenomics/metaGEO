@@ -1,0 +1,176 @@
+---
+title: "Build a metageo instance"
+author: "Jacob Degner"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{metageo}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+This vignette will demonstrate how to build a metageo instance using a set of studies Robert Georgantis put together which all study IBD.  I usually start by turning off all code (set eval=F in all code chunks) after this symbol ##XX##XX.  Build the vignette partially and then code the group regex before turning on ending code. 
+
+Run with:
+```{r 'This chunk is not to be run during the rendering', eval=F}
+source("http://bioconductor.org/biocLite.R")
+biocLite('hgu133plus2.db',suppressUpdates=T)
+rmarkdown::render('vignettes/build_metageo_instance.Rmd')
+```
+
+##Load libraries
+```{r 'Load required libraries', eval=T}
+library(devtools)
+library(gdata)
+library(dbConnect)
+library(RSQLite)
+library(GEOmetadb)
+library(xtable)
+source('../R/GetData.R')
+library(knitr)
+```
+
+## Load the instance-specific data
+This file must contain the following objects:
+
+1. `data_filename` - name of the resulting Rdata file
+2. `datasets` - character vector of GSE IDs e.g. `c('GSE1234', 'GSE4321')`
+3. `group_names` - character vector of names of groupings e.g. `c('1. Normal Tissue', '2. Diseased Tissue', 3. Other')`
+4. `columnList` - list of phenoData column names that contain metadata to be associated with group_names 
+e.g. `list('description', c('description', 'characteristics_ch1'))`
+5. `regexList` - list of regexes to be applied to the specified `columnList` that will place each GSE into the 
+expected groups. Use `'XXX'` for unmatched pairings. e.g. `list(c('tissue:normal', 'tissue:diseased', 'XXX'), c('XXX', 'normal tissue', 'unidentified tissue'))`
+
+```{r 'Load instance specific data', eval=T}
+source('sjogren_info.R')
+```
+
+## metaGEO Rdata generation configurations
+The `GEOmetadb.sqlite` file can be downloaded from [https://gbnci-abcc.ncifcrf.gov/geo/]
+```{r 'configurations, objects, and settings', eval=T}
+GEOmetadb_loc <- "../data/GEOmetadb.sqlite"
+genes <- c('BRCA1', 'CTCF', 'BRCA2')
+```
+
+## Download datasets if not done before, otherwise load predownloaded data 
+```{r 'Load existing Rdata, else re-download GSEs', eval=T}
+if(class(data) != 'list') {
+  if (!file.exists(data_filename)) {
+    data <- getGSEs(datasets)
+    normData <- getNormGSEs(datasets)
+    data <- unlist(data, recursive = F)
+    names(data) <- datasets #Shiny code needs this to be named like this
+    save.image(data_filename)
+  } else{
+    load(data_filename)
+  }
+}
+```
+
+### This is a list of series, and their respective platforms.  Some may need special handling due to non-standard annotation.
+```{r 'GSEs and Platform names', eval=T}
+gpls <- getGPLs(data)
+```
+```{r 'build gpl summary', eval=T}
+allTitlesDF <- as.data.frame(lapply(gpls, function(g) g@header$title))
+tAllTitles <- t(allTitlesDF)
+colnames(tAllTitles) <- c('Platform')
+knitr::kable(tAllTitles)
+```
+
+###Matching to genes with bioconductor annoation
+
+Get a database matching GPL IDs to bioconductor packages.
+
+```{r 'Match GPL IDs to bioconductor packages', eval=T}
+con <- dbConnect(SQLite(), GEOmetadb_loc)
+bioCdb <- getBiocPlatformMap(con, bioc='all')
+```
+
+Redefine matching using the bioconductor annotation databases for all genes in test set
+
+```{r 'match genes to bioconductor annotation', eval=T, warning=T}
+AllGeneIndex <- lapply(genes, getSingleGeneIndex, data, bioCdb)
+names(AllGeneIndex) <- genes
+```
+
+Here is a summary of the probe/gene matches made for each gene and each study.  Evaluate sets that have zero
+probes for the given genes - the platform is indicated.
+```{r 'summarize probe matches', results='asis', eval=T}
+sumdata<-sapply(AllGeneIndex, function(gene) sapply(gene$indices, length))
+sumdata <- cbind(sumdata, tAllTitles[,1])
+colnames(sumdata) <- c(colnames(sumdata)[1:length(genes)], 'Platform')
+knitr::kable(sumdata)
+```
+
+## Classify into different groups based on text matching to metadata in GEO
+
+##First glance at the metadata for each subject to decide which columns you will use to define classes:
+```{r show columns, results='asis', eval=F}
+for (i in seq_along(datasets)) {
+  pheno_cols <- unlist(gdata::matchcols(data[[i]]@phenoData@data,
+                                        with = c('source', 'character', 'description'),
+                                        method = 'or'
+                                       )
+                      )
+  pddf <- data[[i]]@phenoData@data[,pheno_cols]
+  uniq_cols <- lapply(pddf, levels)
+  names(uniq_cols) <- pheno_cols
+  mat <- t(as.matrix(uniq_cols))
+  html_table <- knitr::kable(mat, 
+                             format='html', 
+                             pad=1,
+                             align='l',
+                             caption=paste0("Unique column values for ", datasets[i]))
+  # extra formatting to each table
+  html_table <- gsub('<caption>', '<caption style="text-align: -webkit-left; font-size: 16px; background-color: grey; color: white;">', html_table)
+  # separate unique values by a space for readability
+  html_table <- gsub(',', '\n\n', html_table)
+  # align each set of values to the top of the table
+  html_table <- gsub('<tr>', '<tr valign="top">', html_table)
+  print(html_table)
+  cat('<br>')
+}
+```
+
+##XX##XX
+
+In this section, I show how to use the metageo package to define groups within each study.  To use this, you need to manually define the columns and regex's that you will use to classify subjects into different groups
+First come up with general groupings applied to all studies
+In the first study, we see that "characteristics_ch1" contains the relevant information for groupings:
+We can look at breakdown of individuals by this column to give the types of groups in this study
+
+```{r, results='asis', eval=F}
+# group naming grid.  headings are the group_names, number of columns is the number of datasets
+nameList <- rep(list(group_names), length(data))
+groups <- getGroupings(data, columnList, regexList)
+names(groups) <- datasets
+for(i in 1:length(groups)) names(groups[[i]]) <- nameList[[i]]
+```
+
+Here are some summary stats on the groupings
+
+```{r 'summary stats', results='asis', eval=F}
+totals <- lapply(data, function(i) nrow(i@phenoData@data)[1])
+totalCounts <- data.frame("# Samples", totals)
+knitr::kable(totalCounts)
+```
+
+```{r 'group summary stats', results='asis', eval=F}
+sumtable <- sapply(groups, function(i) sapply(i, sum))
+colnames(sumtable) <- datasets
+knitr::kable(sumtable)
+
+```
+
+After all this, we have an object with all the data as ExpressionSets, and we have indices for accessing the correct gene and individuals in the correct group. 
+We can access the correct subset of an expression set like this.  For the first gene, first expression set, and first grouping of individuals:
+
+```{r, eval=F}
+data[[1]][AllGeneIndex[[1]]$indices[[1]],groups[[1]][[1]]]
+rm(genes)
+save.image(data_filename)
+```
+Once this R object is made, you just need to change the header of the shiny server.R file to point to it and change the datasets list in the ui.R file, place the appropriate folder in your ~/ShinyApps folder and it should work.
+
+
