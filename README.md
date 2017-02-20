@@ -9,7 +9,12 @@
 * hgu133plus2.db
 * org.Hs.eg.db
 * knitr
-* 
+* gdata
+* dbConnect
+* RSQLite
+* GEOmetadb
+* xtable
+* rmarkdown
 
 ### Run example metaGEO shiny-app:
 ```R
