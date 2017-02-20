@@ -1,6 +1,6 @@
 # data required for building metageo instance's Rdata object
 
-data_filename <- 'ObjectWithGeoData_RA.Rdata'
+data_filename <- 'ObjectWithGeoData_psoriasis.Rdata'
 
 datasets <- c(
   'GSE13355',
