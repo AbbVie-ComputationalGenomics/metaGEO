@@ -106,7 +106,7 @@ knitr::kable(sumdata)
 ## Classify into different groups based on text matching to metadata in GEO
 
 ##First glance at the metadata for each subject to decide which columns you will use to define classes:
-```{r show columns, results='asis', eval=F}
+```{r show columns, results='asis', eval=T}
 for (i in seq_along(datasets)) {
   pheno_cols <- unlist(gdata::matchcols(data[[i]]@phenoData@data,
                                         with = c('source', 'character', 'description'),
@@ -140,7 +140,7 @@ First come up with general groupings applied to all studies
 In the first study, we see that "characteristics_ch1" contains the relevant information for groupings:
 We can look at breakdown of individuals by this column to give the types of groups in this study
 
-```{r, results='asis', eval=F}
+```{r, results='asis', eval=T}
 # group naming grid.  headings are the group_names, number of columns is the number of datasets
 nameList <- rep(list(group_names), length(data))
 groups <- getGroupings(data, columnList, regexList)
@@ -150,13 +150,13 @@ for(i in 1:length(groups)) names(groups[[i]]) <- nameList[[i]]
 
 Here are some summary stats on the groupings
 
-```{r 'summary stats', results='asis', eval=F}
+```{r 'summary stats', results='asis', eval=T}
 totals <- lapply(data, function(i) nrow(i@phenoData@data)[1])
 totalCounts <- data.frame("# Samples", totals)
 knitr::kable(totalCounts)
 ```
 
-```{r 'group summary stats', results='asis', eval=F}
+```{r 'group summary stats', results='asis', eval=T}
 sumtable <- sapply(groups, function(i) sapply(i, sum))
 colnames(sumtable) <- datasets
 knitr::kable(sumtable)
@@ -166,7 +166,7 @@ knitr::kable(sumtable)
 After all this, we have an object with all the data as ExpressionSets, and we have indices for accessing the correct gene and individuals in the correct group. 
 We can access the correct subset of an expression set like this.  For the first gene, first expression set, and first grouping of individuals:
 
-```{r, eval=F}
+```{r, eval=T}
 data[[1]][AllGeneIndex[[1]]$indices[[1]],groups[[1]][[1]]]
 rm(genes)
 save.image(data_filename)
