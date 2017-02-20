@@ -1,6 +1,7 @@
 # CompGenomics-metaGEO
 
 ## R package requirements
+It is recommended to install these packages via Bioconductor's biocLite() method:
 * shiny
 * shinyjs
 * shinyBS
