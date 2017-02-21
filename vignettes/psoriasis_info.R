@@ -37,9 +37,9 @@ group_names <- c('1. Psoriasis non-lesion', '2. Psoriasis lesion', '3. Disease O
 #  etc...
 
 columnList <- list(
-  'characteristics_ch1', # 1
-  c('source_name_ch1', 'characteristics_ch1'),
-  'characteristics_name_ch2.1'
+  'characteristics_ch1',
+  'source_name_ch1',
+  'source_name_ch1'
 )
 
 
@@ -53,7 +53,7 @@ columnList <- list(
 #  etc...
 regexList <- list(
   c('^uninvolved skin from cases', '^involved skin from cases', 'XXX', 'controls'),
-  c('Skin biopsy, non-lesional', 'Skin biopsy, lesional', 'XXX', 'Skin biopsy, normal'),
+  c('Skin biopsy, non-lesional', 'Skin biopsy, lesional', 'XXX', 'Skin biopsy normal'),
   c('non-involved skin', 'Lesional skin, psoriasis', 'Lesional skin, eczema', 'XXX')
 )
 

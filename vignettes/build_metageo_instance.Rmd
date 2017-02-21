@@ -9,16 +9,25 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
-This vignette will demonstrate how to build a metageo instance using a set of studies Robert Georgantis put together which all study IBD.  I usually start by turning off all code (set eval=F in all code chunks) after this symbol ##XX##XX.  Build the vignette partially and then code the group regex before turning on ending code. 
+This vignette demonstrates how to build a metaGEO instance from a set of GEO Series (GSEs) - in this case all investigating a common disease: *psoriasis*.
 
-Run with:
-```{r 'This chunk is not to be run during the rendering', eval=F}
-source("http://bioconductor.org/biocLite.R")
-biocLite('hgu133plus2.db',suppressUpdates=T)
-rmarkdown::render('build_metageo_instance.Rmd')
-```
+In order to compare multiple studies, metaGEO aims to empower a user to define their own phenotype groupings and apply them accross GSEs and their unique, and otherwise uncontrolled metadata vocabulary.  For instance, one GSE may label control samples as *"tissue, unaffected"*, whereas another might state simply *"control"*.  The following process will create common groupings for these otherwise disparate metadata.
 
-##Load libraries
+The process consists of 3 phases:
+
+1. Define a GSE set of interest, collet each set's data, and investigate the diversity of the phenotype data.
+2. Generate user-defined groupings to form collections of like-samples across the GSEs
+3. Deploy the metaGEO R-shiny app to provide a means of querying and visualizing the expression between groupings.
+
+It is recommended to start by turning off (i.e. set `eval=F`) all code chunks after the **Groupings** section.  Build the vignette partially, to the point where you have enough metadata to build the groupings in the accompanying `psoriasis_info.R` file.  Then, start turning on the **Grouping** sections and re-rendering this markdown while tuning the column selections and regex definitions to capture as many of the samples as possible.
+
+Finally, save the resulting metaGEO object, and deploy it within the R-shiny app.
+
+***
+
+# 1. Obtain GSE data and investigate phenotype metadata
+
+### Load libraries
 ```{r 'Load required libraries', eval=T}
 library(devtools)
 library(gdata)
@@ -30,23 +39,34 @@ source('../R/GetData.R')
 library(knitr)
 ```
 
-## Load the instance-specific data
+### Load the instance-specific data from the `*_info.R` file
 This file must contain the following objects:
 
 1. `data_filename` - name of the resulting Rdata file
-2. `datasets` - character vector of GSE IDs e.g. `c('GSE1234', 'GSE4321')`
-3. `group_names` - character vector of names of groupings e.g. `c('1. Normal Tissue', '2. Diseased Tissue', 3. Other')`
-4. `columnList` - list of phenoData column names that contain metadata to be associated with group_names 
-e.g. `list('description', c('description', 'characteristics_ch1'))`
+2. `datasets` - character vector of GSE IDs:
+    ```
+    datasets <- c('GSE1234', 'GSE4321')
+    ```
+3. `group_names` - character vector of names of groupings:
+    ```
+    group_names <- c('1. Normal Tissue', '2. Diseased Tissue', 3. Other')
+    ```
+4. `columnList` - list of phenoData column names that contain metadata to be associated with group_names:
+    ```
+    columnlist <- list('description', c('description', 'characteristics_ch1'))
+    ```
 5. `regexList` - list of regexes to be applied to the specified `columnList` that will place each GSE into the 
-expected groups. Use `'XXX'` for unmatched pairings. e.g. `list(c('tissue:normal', 'tissue:diseased', 'XXX'), c('XXX', 'normal tissue', 'unidentified tissue'))`
-
-```{r 'Load instance specific data', eval=T}
+expected groups. Use `'XXX'` for unmatched pairings:
+    ```
+    regexList <- list(c('tissue:normal', 'tissue:diseased', 'XXX'), c('XXX', 'normal tissue', 'unidentified tissue'))
+    ```
+Please use the included `psoriasis_info.R` as an example
+```{r 'Load instance specific data', eval=F}
 source('psoriasis_info.R')
 ```
 
-## metaGEO Rdata generation configurations
-The `GEOmetadb.sqlite` file can be obtained in 2 ways:  
+### load the GEOmetadb.sqlite data, and specify a list of genes to check for probeset existance across platforms.
+Methods for obtaining the multi-GB `GEOmetadb.sqlite` file:  
 
 1. downloaded from [https://gbnci-abcc.ncifcrf.gov/geo/]
 2. pulled with `GEOmetadb`:  
@@ -55,15 +75,14 @@ The `GEOmetadb.sqlite` file can be obtained in 2 ways:
 	library(GEOmetadb)
 	getSQLiteFile(destdir = "data/", destfile = "GEOmetadb.sqlite.gz")
 	```
-
-
-```{r 'configurations, objects, and settings', eval=T}
+```{r 'configurations, objects, and settings', eval=F}
 GEOmetadb_loc <- "../data/GEOmetadb.sqlite"
 genes <- c('BRCA1', 'CTCF', 'BRCA2')
 ```
 
-## Download datasets if not done before, otherwise load predownloaded data 
-```{r 'Load existing Rdata, else re-download GSEs', eval=T}
+### Download datasets if not done before, otherwise load predownloaded data 
+Any GSE failues due to non-standard annotation may require this file to be deleted and re-generated as the list of datasets is curiated.  Turning off this chunk once the datasets are finalized will save some time as multiple renderings may be required to complete the process.
+```{r 'Load existing Rdata, else re-download GSEs', eval=F}
 if(class(data) != 'list') {
   if (!file.exists(data_filename)) {
     data <- getGSEs(datasets)
@@ -76,18 +95,16 @@ if(class(data) != 'list') {
 }
 ```
 
-### This is a list of series, and their respective platforms.  Some may need special handling due to non-standard annotation.
-```{r 'GSEs and Platform names', eval=T}
+### List of GEO series, and their respective platforms.  Some may need special handling or removal due to non-standard annotation.
+```{r 'GSEs and Platform names', eval=F}
 gpls <- getGPLs(data)
-```
-```{r 'build gpl summary', eval=T}
 allTitlesDF <- as.data.frame(lapply(gpls, function(g) g@header$title))
 tAllTitles <- t(allTitlesDF)
 colnames(tAllTitles) <- c('Platform')
 knitr::kable(tAllTitles)
 ```
 
-###Matching to genes with bioconductor annoation
+### Map GEO platform IDs with bioconductor annotation packages.
 
 Get a database matching GPL IDs to bioconductor packages.
 
@@ -98,13 +115,12 @@ bioCdb <- getBiocPlatformMap(con, bioc='all')
 
 Redefine matching using the bioconductor annotation databases for all genes in test set
 
-```{r 'match genes to bioconductor annotation', eval=F, warning=T}
+```{r 'match genes to bioconductor annotation', warning=T, eval=F}
 AllGeneIndex <- lapply(genes, getSingleGeneIndex, data, bioCdb)
 names(AllGeneIndex) <- genes
 ```
 
-Here is a summary of the probe/gene matches made for each gene and each study.  Evaluate sets that have zero
-probes for the given genes - the platform is indicated.
+Summary of the probe/gene matches made for each gene and each study.  Evaluate sets that have zero probes for the given genes - the platform is indicated.
 ```{r 'summarize probe matches', results='asis', eval=F}
 sumdata<-sapply(AllGeneIndex, function(gene) sapply(gene$indices, length))
 sumdata <- cbind(sumdata, tAllTitles[,1])
@@ -112,9 +128,8 @@ colnames(sumdata) <- c(colnames(sumdata)[1:length(genes)], 'Platform')
 knitr::kable(sumdata)
 ```
 
-## Classify into different groups based on text matching to metadata in GEO
-
-##First glance at the metadata for each subject to decide which columns you will use to define classes:
+### Classify into different groups based on text matching to metadata in GEO
+First glance at the metadata for each subject to decide which columns you will use to define classes:
 ```{r show columns, results='asis', eval=F}
 for (i in seq_along(datasets)) {
   pheno_cols <- unlist(gdata::matchcols(data[[i]]@phenoData@data,
@@ -142,14 +157,15 @@ for (i in seq_along(datasets)) {
 }
 ```
 
-##XX##XX
+***
 
-In this section, I show how to use the metageo package to define groups within each study.  To use this, you need to manually define the columns and regex's that you will use to classify subjects into different groups
-First come up with general groupings applied to all studies
-In the first study, we see that "characteristics_ch1" contains the relevant information for groupings:
-We can look at breakdown of individuals by this column to give the types of groups in this study
+# 2. Groupings
 
-```{r, results='asis', eval=F}
+In this section, we show how to use the metageo package to define groups within each study.  This is done by manually defining the columns and regex's that will be used to classify subjects into groups agnostic to metadata vocabulary from the comparable studies.
+
+### Load and inspect the group definitions:
+If this step fails, make sure the columnList is accurate in the *_info.R file
+```{r, 'Load and Inspect the Group Definitions', results='asis', eval=F}
 # group naming grid.  headings are the group_names, number of columns is the number of datasets
 nameList <- rep(list(group_names), length(data))
 groups <- getGroupings(data, columnList, regexList)
@@ -157,29 +173,35 @@ names(groups) <- datasets
 for(i in 1:length(groups)) names(groups[[i]]) <- nameList[[i]]
 ```
 
-Here are some summary stats on the groupings
-
+### Summary stats on the groupings
+Total sample counts per study
 ```{r 'summary stats', results='asis', eval=F}
 totals <- lapply(data, function(i) nrow(i@phenoData@data)[1])
 totalCounts <- data.frame("# Samples", totals)
+names(totalCounts) <- c('', datasets)
 knitr::kable(totalCounts)
 ```
 
+Number of samples per study attributed to each user-defined group - The column sums should equal the per-study totals above.  If not, then double-check that the appropriate metadata column is used in `columnList`, and that the regex in `regexList` matches the unique values under that column.
+
+It is possible not all samples in the GSE will match the comparison profile for your metaGEO object, but if you encounter a Zero then there is likely an error in the `*_info.R` file.
 ```{r 'group summary stats', results='asis', eval=F}
 sumtable <- sapply(groups, function(i) sapply(i, sum))
 colnames(sumtable) <- datasets
+sumtable <- rbind(sumtable, colSums(sumtable))
 knitr::kable(sumtable)
-
 ```
 
-After all this, we have an object with all the data as ExpressionSets, and we have indices for accessing the correct gene and individuals in the correct group. 
-We can access the correct subset of an expression set like this.  For the first gene, first expression set, and first grouping of individuals:
+# Save the metaGEO object
 
+At this point, you have generated an object with all the data as ExpressionSets, and the indices for accessing the correct gene and individuals in the defined group. 
+Clean up some unneeded elements, and save the metaGEO object into the filename given in the `*_info.R` file.
 ```{r, eval=F}
-data[[1]][AllGeneIndex[[1]]$indices[[1]],groups[[1]][[1]]]
 rm(genes)
 save.image(data_filename)
 ```
-Once this R object is made, you just need to change the header of the shiny server.R file to point to it and change the datasets list in the ui.R file, place the appropriate folder in your ~/ShinyApps folder and it should work.
+Once this R object is made, you are ready to deploy the R-shiny app:
 
+***
 
+# 3. Deploy the metaGEO R-shiny app:

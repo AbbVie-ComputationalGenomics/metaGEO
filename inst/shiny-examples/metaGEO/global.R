@@ -1,7 +1,14 @@
+# ATTENTION: Please edit the following variables to customize this instance of metaGEO:
+metaGEO_obj_loc <- 'data/ObjectWithGEOdata_psoriasis.Rdata'  # location of the metaGEO object
+metageo_title <- "Psoriasis"                                 # title 
+
+
+#------ Do not edit the following code ------#
+
 packagedir <- '../'
 print('loading Rdata')
-load(paste0(packagedir, 'data/ObjectWithGEOdata_psoriasis.Rdata'))
-metageo_title <- "Psoriasis"
+
+load(paste0(packagedir, metaGEO_obj_loc))
 
 jsCode <- "
 shinyjs.flip_checkbox = function (params) {

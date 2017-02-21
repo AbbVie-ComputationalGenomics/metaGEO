@@ -1,10 +1,8 @@
-library(logging)
-
 
 getGEO_ABV <- function (GEO = NULL, filename = NULL, destdir = tempdir(), GSElimits = NULL,
     					GSEMatrix = TRUE, AnnotGPL = FALSE, getGPL = TRUE) {
-    logging::loginfo("Called getGEO_ABV.")
     con <- NULL
+    sprintf("GEO arg is: %s", GEO )
     if (!is.null(GSElimits)) {
         if (length(GSElimits) != 2) {
             stop("GSElimits should be an integer vector of length 2, like (1,10) to include GSMs 1 through 10")
@@ -17,14 +15,11 @@ getGEO_ABV <- function (GEO = NULL, filename = NULL, destdir = tempdir(), GSElim
         GEO <- toupper(GEO)
         geotype <- toupper(substr(GEO, 1, 3))
         if (GSEMatrix & geotype == "GSE") {
-            logging::loginfo("getGEO_ABV - Returning getAndParseGSEMatrices_ABV.")
-            return(getAndParseGSEMatrices_ABV(GEO, destdir, AnnotGPL = AnnotGPL,
-                getGPL = getGPL))
+            return(getAndParseGSEMatrices_ABV(GEO, destdir, AnnotGPL = AnnotGPL, getGPL = getGPL))
         }
         filename <- getGEOfile(GEO, destdir = destdir, AnnotGPL = AnnotGPL)
     }
     ret <- parseGEO(filename, GSElimits)
-    logging::loginfo("getGEO_ABV - returning parseGEO output.")
     return(ret)
 }
 
@@ -32,7 +27,7 @@ getGEO_ABV <- function (GEO = NULL, filename = NULL, destdir = tempdir(), GSElim
 getAndParseGSEMatrices_ABV <- function (GEO, destdir, AnnotGPL, getGPL = TRUE) {
     GEO <- toupper(GEO)
     stub = gsub("\\d{1,3}$", "nnn", GEO, perl = TRUE)
-    gdsurl <- "http://ftp.ncbi.nlm.nih.gov/geo/series/%s/%s/matrix/"
+    gdsurl <- "https://ftp.ncbi.nlm.nih.gov/geo/series/%s/%s/matrix/"
     b = getDirListing_ABV(sprintf(gdsurl, stub, GEO))
     message(sprintf("Found %d file(s)", length(b)))
     ret <- list()
@@ -44,7 +39,7 @@ getAndParseGSEMatrices_ABV <- function (GEO, destdir, AnnotGPL, getGPL = TRUE) {
                 destfile))
         }
         else {
-            download.file(sprintf("http://ftp.ncbi.nlm.nih.gov/geo/series/%s/%s/matrix/%s", 
+            download.file(sprintf("https://ftp.ncbi.nlm.nih.gov/geo/series/%s/%s/matrix/%s", 
                 stub, GEO, b[i]), destfile = destfile, mode = "wb", 
                 method = getOption("download.file.method.GEOquery"))
         }
@@ -82,7 +77,7 @@ getDirListing_ABV <- function (url){
 #' @param dataset A GEO gene expresseion set accession number (e.g., GSE1500)
 #' @return A bioconductor gene expression set
 getGSE <- function(dataset) {
-	gset <- getGEO_ABV(dataset, GSEMatrix=TRUE)
+	gset <- getGEO_ABV(GEO=dataset, GSEMatrix=TRUE)
 	if (length(gset) > 1) idx <- grep("GPL[0-9]", attr(gset, "names")) else idx <- 1
 	gset <- gset[idx]
 	print(paste0('Dataset: ', dataset, ' returned: ', length(gset)))
