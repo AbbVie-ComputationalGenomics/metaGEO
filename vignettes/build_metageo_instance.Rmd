@@ -204,9 +204,23 @@ Once this R object is made, you are ready to deploy the R-shiny app:
 
 ***
 
-# 3. Deploy the metaGEO R-shiny app: (work in progress)
+# 3. Deploy the metaGEO R-shiny app
 
 ### Move or copy the newly construscted metaGEO object to the shiny app:
+`cp` or `mv` the `.Rdata` file, and change the working directory:
 ```bash
-mv ObjectWithGeoData_psoriasis.Rdata ../inst/shiny-examples/data/
+$ mv ObjectWithGeoData_psoriasis.Rdata ../inst/shiny-examples/data/
+$ cd ../inst/shiny-examples/
 ```
+
+### Start an R session and run the app:
+```R
+> library(shiny)
+> runApp("metaGEO")
+```
+
+Instructions:
+
+* Select a HUGO gene name from the drop-down menu
+* Click *Scan Datasets* for metaGEO to automatically de-select from the list of GSEs those that do not contain probes for the gene of interest.
+* Click *Generate Plots* to view the results

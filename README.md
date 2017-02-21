@@ -34,8 +34,15 @@ Start an R session, and perform the initial rendering:
 Upon successful rendering, load the resulting `build_metageo_instance.html` file in your browser.
 
 
-### Run example metaGEO shiny-app: (in progress)
+### Run example metaGEO shiny-app
+Copy or move the `.Rdata` file generated from the vignette to the shiny app's data location:
+```bash
+cp vignettes/ObjectWithGeoData_psoriasis.Rdata inst/shiny-examples/data/
+cd inst/shiny-examples/
+
+Start the app
 ```R
-mypackage::runExample()
+library(shiny)
+runApp("metaGEO")
 ```
 
