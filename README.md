@@ -19,6 +19,7 @@ It is recommended to install these packages via Bioconductor's biocLite() method
 * devtools
 
 ## Run the *psoriasis* vignette
+
 ```bash
 $ cd vignettes
 $ ls
@@ -37,12 +38,13 @@ Upon successful rendering, load the resulting `build_metageo_instance.html` file
 ### Run example metaGEO shiny-app
 Copy or move the `.Rdata` file generated from the vignette to the shiny app's data location:
 ```bash
-cp vignettes/ObjectWithGeoData_psoriasis.Rdata inst/shiny-examples/data/
-cd inst/shiny-examples/
+$ cp vignettes/ObjectWithGeoData_psoriasis.Rdata inst/shiny-examples/data/
+$ cd inst/shiny-examples/
+```
 
 Start the app
 ```R
-library(shiny)
-runApp("metaGEO")
+> library(shiny)
+> runApp("metaGEO")
 ```
 
