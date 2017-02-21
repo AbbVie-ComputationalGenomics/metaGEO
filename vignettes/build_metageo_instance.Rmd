@@ -61,7 +61,7 @@ expected groups. Use `'XXX'` for unmatched pairings:
     regexList <- list(c('tissue:normal', 'tissue:diseased', 'XXX'), c('XXX', 'normal tissue', 'unidentified tissue'))
     ```
 Please use the included `psoriasis_info.R` as an example
-```{r 'Load instance specific data', eval=F}
+```{r 'Load instance specific data', eval=T}
 source('psoriasis_info.R')
 ```
 
@@ -75,14 +75,14 @@ Methods for obtaining the multi-GB `GEOmetadb.sqlite` file:
 	library(GEOmetadb)
 	getSQLiteFile(destdir = "data/", destfile = "GEOmetadb.sqlite.gz")
 	```
-```{r 'configurations, objects, and settings', eval=F}
+```{r 'configurations, objects, and settings', eval=T}
 GEOmetadb_loc <- "../data/GEOmetadb.sqlite"
 genes <- c('BRCA1', 'CTCF', 'BRCA2')
 ```
 
 ### Download datasets if not done before, otherwise load predownloaded data 
 Any GSE failues due to non-standard annotation may require this file to be deleted and re-generated as the list of datasets is curiated.  Turning off this chunk once the datasets are finalized will save some time as multiple renderings may be required to complete the process.
-```{r 'Load existing Rdata, else re-download GSEs', eval=F}
+```{r 'Load existing Rdata, else re-download GSEs', eval=T}
 if(class(data) != 'list') {
   if (!file.exists(data_filename)) {
     data <- getGSEs(datasets)
@@ -96,7 +96,7 @@ if(class(data) != 'list') {
 ```
 
 ### List of GEO series, and their respective platforms.  Some may need special handling or removal due to non-standard annotation.
-```{r 'GSEs and Platform names', eval=F}
+```{r 'GSEs and Platform names', eval=T}
 gpls <- getGPLs(data)
 allTitlesDF <- as.data.frame(lapply(gpls, function(g) g@header$title))
 tAllTitles <- t(allTitlesDF)
@@ -108,20 +108,20 @@ knitr::kable(tAllTitles)
 
 Get a database matching GPL IDs to bioconductor packages.
 
-```{r 'Match GPL IDs to bioconductor packages', eval=F}
+```{r 'Match GPL IDs to bioconductor packages', eval=T}
 con <- dbConnect(SQLite(), GEOmetadb_loc)
 bioCdb <- getBiocPlatformMap(con, bioc='all')
 ```
 
 Redefine matching using the bioconductor annotation databases for all genes in test set
 
-```{r 'match genes to bioconductor annotation', warning=T, eval=F}
+```{r 'match genes to bioconductor annotation', warning=T, eval=T}
 AllGeneIndex <- lapply(genes, getSingleGeneIndex, data, bioCdb)
 names(AllGeneIndex) <- genes
 ```
 
 Summary of the probe/gene matches made for each gene and each study.  Evaluate sets that have zero probes for the given genes - the platform is indicated.
-```{r 'summarize probe matches', results='asis', eval=F}
+```{r 'summarize probe matches', results='asis', eval=T}
 sumdata<-sapply(AllGeneIndex, function(gene) sapply(gene$indices, length))
 sumdata <- cbind(sumdata, tAllTitles[,1])
 colnames(sumdata) <- c(colnames(sumdata)[1:length(genes)], 'Platform')
@@ -130,7 +130,7 @@ knitr::kable(sumdata)
 
 ### Classify into different groups based on text matching to metadata in GEO
 First glance at the metadata for each subject to decide which columns you will use to define classes:
-```{r show columns, results='asis', eval=F}
+```{r show columns, results='asis', eval=T}
 for (i in seq_along(datasets)) {
   pheno_cols <- unlist(gdata::matchcols(data[[i]]@phenoData@data,
                                         with = c('source', 'character', 'description'),
@@ -204,4 +204,9 @@ Once this R object is made, you are ready to deploy the R-shiny app:
 
 ***
 
-# 3. Deploy the metaGEO R-shiny app:
+# 3. Deploy the metaGEO R-shiny app: (work in progress)
+
+### Move or copy the newly construscted metaGEO object to the shiny app:
+```bash
+mv ObjectWithGeoData_psoriasis.Rdata ../inst/shiny-examples/data/
+```
