@@ -1,6 +1,6 @@
 # CompGenomics-metaGEO
 
-## R package requirements
+### R package requirements
 It is recommended to install these packages via Bioconductor's biocLite() method:
 * shiny
 * shinyjs
@@ -18,14 +18,23 @@ It is recommended to install these packages via Bioconductor's biocLite() method
 * rmarkdown
 * devtools
 
-The metageo object building process (see the [vignettes](vignettes/)) requires a recent version of the GEOmetadb SQLite file.  Download the file, and unzip it in the [data/](data/) directory:  
-```R
-library(GEOmetadb)
-getSQLiteFile(destdir = "data/", destfile = "GEOmetadb.sqlite.gz")
+## Run the *psoriasis* vignette
+```bash
+$ cd vignettes
+$ ls
+build_metageo_instance.Rmd  psoriasis_info.R
 ```
 
+Start an R session, and perform the initial rendering:
+```R
+> library(rmarkdown)
+> rmarkdown::render('build_metageo_instance.Rmd')
+```
 
-### Run example metaGEO shiny-app:
+Upon successful rendering, load the resulting `build_metageo_instance.html` file in your browser.
+
+
+### Run example metaGEO shiny-app: (in progress)
 ```R
 mypackage::runExample()
 ```
