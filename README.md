@@ -1,35 +1,43 @@
 # CompGenomics-metaGEO
 
+### Clone this repository
+```bash
+git clone git@pig.abbvienet.com:grundaj/CompGenomics-metaGEO.git
+```
+### Start an R session
+
 ### R package requirements
-It is recommended to install these packages via Bioconductor's biocLite() method:
-* shiny
-* shinyjs
-* shinyBS
-* lattice
-* logging
-* hgu133plus2.db
-* org.Hs.eg.db
-* knitr
-* gdata
-* dbConnect
-* RSQLite
-* GEOmetadb
-* xtable
-* rmarkdown
-* devtools
+To install all dependencies run:
+```  
+source("https://bioconductor.org/biocLite.R")
+  biocLite(c('shiny',
+          'shinyjs',
+          'shinyBS',
+          'lattice',
+          'logging',
+          'hgu133plus2.db',
+          'org.Hs.eg.db', 
+          'knitr',
+          'gdata',
+          'dbConnect',
+          'RSQLite',
+          'GEOmetadb',
+          'xtable',
+          'rmarkdown',
+          'devtools',
+          'reshape2'))
+```
 
 ## Run the *psoriasis* vignette
 
-```bash
-$ cd vignettes
-$ ls
-build_metageo_instance.Rmd  psoriasis_info.R
+```R
+setwd(CompGenomics-metaGEO/vignettes)
 ```
 
-Start an R session, and perform the initial rendering:
+Perform the initial rendering:
 ```R
-> library(rmarkdown)
-> rmarkdown::render('build_metageo_instance.Rmd')
+library(rmarkdown)
+render('build_metageo_instance.Rmd')
 ```
 
 Upon successful rendering, load the resulting `build_metageo_instance.html` file in your browser.
@@ -37,14 +45,14 @@ Upon successful rendering, load the resulting `build_metageo_instance.html` file
 
 ### Run example metaGEO shiny-app
 Copy or move the `.Rdata` file generated from the vignette to the shiny app's data location:
-```bash
-$ cp vignettes/ObjectWithGeoData_psoriasis.Rdata inst/shiny-examples/data/
-$ cd inst/shiny-examples/
+```R
+file.rename('ObjectWithGeoData_psoriasis.Rdata', '../inst/shiny-examples/data/ObjectWithGeoData_psoriasis.Rdata')
+setwd('../inst/shiny-examples/')
 ```
 
 Start the app
 ```R
-> library(shiny)
-> runApp("metaGEO")
+library(shiny)
+runApp("metaGEO")
 ```
 
