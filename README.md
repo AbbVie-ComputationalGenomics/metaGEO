@@ -24,7 +24,8 @@ source("https://bioconductor.org/biocLite.R")
           'GEOmetadb',
           'xtable',
           'rmarkdown',
-          'devtools'))
+          'devtools',
+          'reshape2'))
 ```
 
 ## Run the *psoriasis* vignette
