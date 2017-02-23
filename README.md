@@ -30,7 +30,7 @@ source("https://bioconductor.org/biocLite.R")
 ## Run the *psoriasis* vignette
 
 ```R
-$ setwd(CompGenomics-metaGEO/vignettes)
+setwd(CompGenomics-metaGEO/vignettes)
 ```
 
 Perform the initial rendering:
@@ -44,14 +44,14 @@ Upon successful rendering, load the resulting `build_metageo_instance.html` file
 
 ### Run example metaGEO shiny-app
 Copy or move the `.Rdata` file generated from the vignette to the shiny app's data location:
-```bash
-$ cp vignettes/ObjectWithGeoData_psoriasis.Rdata inst/shiny-examples/data/
-$ cd inst/shiny-examples/
+```R
+file.rename('ObjectWithGeoData_psoriasis.Rdata', '../inst/shiny-examples/data/ObjectWithGeoData_psoriasis.Rdata')
+setwd('../inst/shiny-examples/')
 ```
 
 Start the app
 ```R
-> library(shiny)
-> runApp("metaGEO")
+library(shiny)
+runApp("metaGEO")
 ```
 
