@@ -1,83 +1,10 @@
 
-getGEO_ABV <- function (GEO = NULL, filename = NULL, destdir = tempdir(), GSElimits = NULL,
-    					GSEMatrix = TRUE, AnnotGPL = FALSE, getGPL = TRUE) {
-    con <- NULL
-    sprintf("GEO arg is: %s", GEO )
-    if (!is.null(GSElimits)) {
-        if (length(GSElimits) != 2) {
-            stop("GSElimits should be an integer vector of length 2, like (1,10) to include GSMs 1 through 10")
-        }
-    }
-    if (is.null(GEO) & is.null(filename)) {
-        stop("You must supply either a filename of a GEO file or a GEO accession")
-    }
-    if (is.null(filename)) {
-        GEO <- toupper(GEO)
-        geotype <- toupper(substr(GEO, 1, 3))
-        if (GSEMatrix & geotype == "GSE") {
-            return(getAndParseGSEMatrices_ABV(GEO, destdir, AnnotGPL = AnnotGPL, getGPL = getGPL))
-        }
-        filename <- getGEOfile(GEO, destdir = destdir, AnnotGPL = AnnotGPL)
-    }
-    ret <- parseGEO(filename, GSElimits)
-    return(ret)
-}
-
-
-getAndParseGSEMatrices_ABV <- function (GEO, destdir, AnnotGPL, getGPL = TRUE) {
-    GEO <- toupper(GEO)
-    stub = gsub("\\d{1,3}$", "nnn", GEO, perl = TRUE)
-    gdsurl <- "https://ftp.ncbi.nlm.nih.gov/geo/series/%s/%s/matrix/"
-    b = getDirListing_ABV(sprintf(gdsurl, stub, GEO))
-    message(sprintf("Found %d file(s)", length(b)))
-    ret <- list()
-    for (i in 1:length(b)) {
-        message(b[i])
-        destfile = file.path(destdir, b[i])
-        if (file.exists(destfile)) {
-            message(sprintf("Using locally cached version: %s", 
-                destfile))
-        }
-        else {
-            download.file(sprintf("https://ftp.ncbi.nlm.nih.gov/geo/series/%s/%s/matrix/%s", 
-                stub, GEO, b[i]), destfile = destfile, mode = "wb", 
-                method = getOption("download.file.method.GEOquery"))
-        }
-        ret[[b[i]]] <- GEOquery:::parseGSEMatrix(destfile, destdir = destdir, 
-            AnnotGPL = AnnotGPL, getGPL = getGPL)$eset
-    }
-    return(ret)
-}
-
-
-getDirListing_ABV <- function (url){
-    message(url)
-    a <- RCurl::getURL(url)
-    if (grepl("HTML", a)) {
-        message("# Processing HTML result page (behind a proxy?) ... ", 
-            appendLF = FALSE)
-	sa <- gsub("HREF", "href", a, fixed = TRUE)
-        sa <- strsplit(sa, "href", fixed = TRUE)[[1]]
-	sa <- sa[grep('matrix.txt.gz', sa)]
-	b <- as.matrix(as.character(sapply(sa, function(a) gsub('.*GSE', 'GSE', gsub('matrix.txt.gz.*', 'matrix.txt.gz', a)))))
-        message("OK")
-    }
-    else {
-        tmpcon <- textConnection(a, "r")
-        b <- read.table(tmpcon)
-        close(tmpcon)
-    }
-    b <- as.character(b[, ncol(b)])
-    return(b)
-}
-
-
 #' Get a gene expression set from GEO
 #'
 #' @param dataset A GEO gene expresseion set accession number (e.g., GSE1500)
 #' @return A bioconductor gene expression set
 getGSE <- function(dataset) {
-	gset <- getGEO_ABV(GEO=dataset, GSEMatrix=TRUE)
+	gset <- getGEO(GEO=dataset, GSEMatrix=TRUE)
 	if (length(gset) > 1) idx <- grep("GPL[0-9]", attr(gset, "names")) else idx <- 1
 	gset <- gset[idx]
 	print(paste0('Dataset: ', dataset, ' returned: ', length(gset)))
@@ -90,7 +17,7 @@ getGSE <- function(dataset) {
 #' @param datasets A character vector giving GEO
 #' @return A list of bioconductor gene expression sets
 getGSEs <- function(datasets) {
-  mclapply(datasets, function(i) try(getGSE(i)), mc.cores=4)
+  lapply(datasets, function(i) try(getGSE(i)))
 }
 
 
@@ -111,7 +38,7 @@ getGPL <- function(expSet) {
 #' @return A list of unique bioconductor GPL objects
 getGPLs <- function(expressionSets) {
   library(parallel)
-  gplSets <- mclapply(expressionSets, function(gse) try(getGPL(gse)), mc.cores=4)
+  gplSets <- lapply(expressionSets, function(gse) try(getGPL(gse)))
   return(gplSets)
 }
 
@@ -293,9 +220,9 @@ getGroupings <- function(data, columnList, regexList) {
 getNormGSEs <- function(datasets) {
   library(SCAN.UPC)
   library(parallel)
-  normData <- mclapply(datasets, function(gse) {
+  normData <- lapply(datasets, function(gse) {
     SCAN(gse)
-  }, mc.cores=4)
+  })
   return(normData)
 }
 
