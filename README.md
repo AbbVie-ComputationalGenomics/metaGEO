@@ -31,7 +31,7 @@ source("https://bioconductor.org/biocLite.R")
 ## Run the *psoriasis* vignette
 
 ```R
-setwd(CompGenomics-metaGEO/vignettes)
+setwd('CompGenomics-metaGEO/vignettes')
 ```
 
 Perform the initial rendering:
