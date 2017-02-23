@@ -1,23 +1,12 @@
 # CompGenomics-metaGEO
 
-### R package requirements
-It is recommended to install these packages via Bioconductor's biocLite() method:
-* shiny
-* shinyjs
-* shinyBS
-* lattice
-* logging
-* hgu133plus2.db
-* org.Hs.eg.db
-* knitr
-* gdata
-* dbConnect
-* RSQLite
-* GEOmetadb
-* xtable
-* rmarkdown
-* devtools
+### Clone this repository
+```bash
+git clone git@pig.abbvienet.com:grundaj/CompGenomics-metaGEO.git
+```
+### Start an R session
 
+### R package requirements
 To install all dependencies run:
 ```  
 source("https://bioconductor.org/biocLite.R")
@@ -38,20 +27,16 @@ source("https://bioconductor.org/biocLite.R")
           'devtools'))
 ```
 
-### 
-
 ## Run the *psoriasis* vignette
 
-```bash
-$ cd vignettes
-$ ls
-build_metageo_instance.Rmd  psoriasis_info.R
+```R
+$ setwd(CompGenomics-metaGEO/vignettes)
 ```
 
-Start an R session, and perform the initial rendering:
+Perform the initial rendering:
 ```R
-> library(rmarkdown)
-> render('build_metageo_instance.Rmd')
+library(rmarkdown)
+render('build_metageo_instance.Rmd')
 ```
 
 Upon successful rendering, load the resulting `build_metageo_instance.html` file in your browser.
