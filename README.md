@@ -19,8 +19,8 @@ It is recommended to install these packages via Bioconductor's biocLite() method
 * devtools
 
 To install all dependencies run:
-  source("https://bioconductor.org/biocLite.R")
-  biocLite('shiny',
+```  source("https://bioconductor.org/biocLite.R")
+  biocLite(c('shiny',
           'shinyjs',
           'shinyBS',
           'lattice',
@@ -34,8 +34,8 @@ To install all dependencies run:
           'GEOmetadb',
           'xtable',
           'rmarkdown',
-          'devtools')
-
+          'devtools'))
+```
 ## Run the *psoriasis* vignette
 
 ```bash
