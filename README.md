@@ -1,5 +1,6 @@
 # CompGenomics-metaGEO
-
+## Quickstart guide
+Following this guide will build an example metaGEO app comparing multiple psoriasis studies.  More details on how to create a new metaGEO can be found by following the vignette.
 ### Clone this repository
 ```bash
 git clone git@pig.abbvienet.com:grundaj/CompGenomics-metaGEO.git
@@ -34,7 +35,7 @@ source("https://bioconductor.org/biocLite.R")
 setwd('CompGenomics-metaGEO/vignettes')
 ```
 
-Perform the initial rendering:
+Perform the initial rendering (May take a few minutes depending on network speed):
 ```R
 library(rmarkdown)
 render('build_metageo_instance.Rmd')
