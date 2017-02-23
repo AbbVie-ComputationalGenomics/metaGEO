@@ -4,7 +4,7 @@
 ```bash
 git clone git@pig.abbvienet.com:grundaj/CompGenomics-metaGEO.git
 ```
-### Start an R session
+### Start an Rstudio session
 
 ### R package requirements
 To install all dependencies run:
