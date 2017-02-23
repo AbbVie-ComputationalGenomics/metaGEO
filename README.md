@@ -37,6 +37,9 @@ source("https://bioconductor.org/biocLite.R")
           'rmarkdown',
           'devtools'))
 ```
+
+### 
+
 ## Run the *psoriasis* vignette
 
 ```bash
@@ -48,7 +51,7 @@ build_metageo_instance.Rmd  psoriasis_info.R
 Start an R session, and perform the initial rendering:
 ```R
 > library(rmarkdown)
-> rmarkdown::render('build_metageo_instance.Rmd')
+> render('build_metageo_instance.Rmd')
 ```
 
 Upon successful rendering, load the resulting `build_metageo_instance.html` file in your browser.
