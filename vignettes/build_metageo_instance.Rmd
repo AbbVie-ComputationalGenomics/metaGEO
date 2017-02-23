@@ -15,11 +15,11 @@ In order to compare multiple studies, metaGEO aims to empower a user to define t
 
 The process consists of 3 phases:
 
-1. Define a GSE set of interest, collet each set's data, and investigate the diversity of the phenotype data.
+1. Define a GSE set of interest, collect each set's data, and investigate the diversity of the phenotype data.
 2. Generate user-defined groupings to form collections of like-samples across the GSEs
 3. Deploy the metaGEO R-shiny app to provide a means of querying and visualizing the expression between groupings.
 
-It is recommended to start by turning off (i.e. set `eval=F`) all code chunks after the **Groupings** section.  Build the vignette partially, to the point where you have enough metadata to build the groupings in the accompanying `psoriasis_info.R` file.  Then, start turning on the **Grouping** sections and re-rendering this markdown while tuning the column selections and regex definitions to capture as many of the samples as possible.
+When building your own metaGEO instance, it is recommended to start by turning off (i.e. set `eval=F`) all code chunks after the **Groupings** section. Build the vignette partially, to the point where you have enough metadata to build the groupings in the accompanying `psoriasis_info.R` file.  Then, start turning on the **Grouping** sections and re-rendering this markdown while tuning the column selections and regex definitions to capture as many of the samples as possible.
 
 Finally, save the resulting metaGEO object, and deploy it within the R-shiny app.
 
@@ -53,7 +53,7 @@ This file must contain the following objects:
     ```
 4. `columnList` - list of phenoData column names that contain metadata to be associated with group_names:
     ```
-    columnlist <- list('description', c('description', 'characteristics_ch1'))
+    columnlist <- list('description', 'description', 'characteristics_ch1')
     ```
 5. `regexList` - list of regexes to be applied to the specified `columnList` that will place each GSE into the 
 expected groups. Use `'XXX'` for unmatched pairings:
@@ -71,17 +71,22 @@ Methods for obtaining the multi-GB `GEOmetadb.sqlite` file:
 1. downloaded from [https://gbnci-abcc.ncifcrf.gov/geo/]
 2. pulled with `GEOmetadb`:  
    
-	```
+```{r 'get sqlite db', eval=T}
+  GEOmetadb_loc <- "../data/GEOmetadb.sqlite.gz"
 	library(GEOmetadb)
-	getSQLiteFile(destdir = "data/", destfile = "GEOmetadb.sqlite.gz")
-	```
+  if (!file.exists(GEOmetadb_loc)) {
+  download.file('https://gbnci-abcc.ncifcrf.gov/geo/GEOmetadb.sqlite.gz', GEOmetadb_loc)
+  gunzip('../data/GEOmetadb.sqlite.gz', destname = '../data/GEOmetadb_sqlite')
+  }
+```
+
 ```{r 'configurations, objects, and settings', eval=T}
-GEOmetadb_loc <- "../data/GEOmetadb.sqlite"
+GEOmetadb_loc <- "../data/GEOmetadb_sqlite"
 genes <- c('BRCA1', 'CTCF', 'BRCA2')
 ```
 
 ### Download datasets if not done before, otherwise load predownloaded data 
-Any GSE failues due to non-standard annotation may require this file to be deleted and re-generated as the list of datasets is curiated.  Turning off this chunk once the datasets are finalized will save some time as multiple renderings may be required to complete the process.
+Any GSE failues due to non-standard annotation may require this file to be deleted and re-generated as the list of datasets is curated.  Turning off this chunk once the datasets are finalized will save some time as multiple renderings may be required to complete the process.
 ```{r 'Load existing Rdata, else re-download GSEs', eval=T}
 if(class(data) != 'list') {
   if (!file.exists(data_filename)) {
@@ -165,7 +170,7 @@ In this section, we show how to use the metageo package to define groups within 
 
 ### Load and inspect the group definitions:
 If this step fails, make sure the columnList is accurate in the *_info.R file
-```{r, 'Load and Inspect the Group Definitions', results='asis', eval=F}
+```{r, 'Load and Inspect the Group Definitions', results='asis', eval=T}
 # group naming grid.  headings are the group_names, number of columns is the number of datasets
 nameList <- rep(list(group_names), length(data))
 groups <- getGroupings(data, columnList, regexList)
@@ -175,7 +180,7 @@ for(i in 1:length(groups)) names(groups[[i]]) <- nameList[[i]]
 
 ### Summary stats on the groupings
 Total sample counts per study
-```{r 'summary stats', results='asis', eval=F}
+```{r 'summary stats', results='asis', eval=T}
 totals <- lapply(data, function(i) nrow(i@phenoData@data)[1])
 totalCounts <- data.frame("# Samples", totals)
 names(totalCounts) <- c('', datasets)
@@ -185,7 +190,7 @@ knitr::kable(totalCounts)
 Number of samples per study attributed to each user-defined group - The column sums should equal the per-study totals above.  If not, then double-check that the appropriate metadata column is used in `columnList`, and that the regex in `regexList` matches the unique values under that column.
 
 It is possible not all samples in the GSE will match the comparison profile for your metaGEO object, but if you encounter a Zero then there is likely an error in the `*_info.R` file.
-```{r 'group summary stats', results='asis', eval=F}
+```{r 'group summary stats', results='asis', eval=T}
 sumtable <- sapply(groups, function(i) sapply(i, sum))
 colnames(sumtable) <- datasets
 sumtable <- rbind(sumtable, colSums(sumtable))
@@ -196,7 +201,7 @@ knitr::kable(sumtable)
 
 At this point, you have generated an object with all the data as ExpressionSets, and the indices for accessing the correct gene and individuals in the defined group. 
 Clean up some unneeded elements, and save the metaGEO object into the filename given in the `*_info.R` file.
-```{r, eval=F}
+```{r, eval=T}
 rm(genes)
 save.image(data_filename)
 ```
@@ -208,9 +213,9 @@ Once this R object is made, you are ready to deploy the R-shiny app:
 
 ### Move or copy the newly construscted metaGEO object to the shiny app:
 `cp` or `mv` the `.Rdata` file, and change the working directory:
-```bash
-$ mv ObjectWithGeoData_psoriasis.Rdata ../inst/shiny-examples/data/
-$ cd ../inst/shiny-examples/
+```R 
+>file.rename('ObjectWithGeoData_psoriasis.Rdata', '../inst/shiny-examples/data/ObjectWithGeoData_psoriasis.Rdata')
+>setwd(../inst/shiny-examples/)
 ```
 
 ### Start an R session and run the app:
