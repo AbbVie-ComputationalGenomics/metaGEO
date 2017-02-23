@@ -18,6 +18,24 @@ It is recommended to install these packages via Bioconductor's biocLite() method
 * rmarkdown
 * devtools
 
+To install all dependencies run:
+  source("https://bioconductor.org/biocLite.R")
+  biocLite('shiny',
+          'shinyjs',
+          'shinyBS',
+          'lattice',
+          'logging',
+          'hgu133plus2.db',
+          'org.Hs.eg.db', 
+          'knitr',
+          'gdata',
+          'dbConnect',
+          'RSQLite',
+          'GEOmetadb',
+          'xtable',
+          'rmarkdown',
+          'devtools')
+
 ## Run the *psoriasis* vignette
 
 ```bash
