@@ -19,7 +19,8 @@ It is recommended to install these packages via Bioconductor's biocLite() method
 * devtools
 
 To install all dependencies run:
-```  source("https://bioconductor.org/biocLite.R")
+```  
+source("https://bioconductor.org/biocLite.R")
   biocLite(c('shiny',
           'shinyjs',
           'shinyBS',
