@@ -32,7 +32,7 @@ source("https://bioconductor.org/biocLite.R")
 ### Pandoc requirement
 Please install the appropriate system build of Pandoc
 
-[https://github.com/jgm/pandoc/releases/tag/1.19.2.1]
+https://github.com/jgm/pandoc/releases/tag/1.19.2.1
 
 ## Run the *psoriasis* vignette
 
