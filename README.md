@@ -29,6 +29,11 @@ source("https://bioconductor.org/biocLite.R")
           'reshape2'))
 ```
 
+### Pandoc requirement
+Please install the appropriate system build of Pandoc
+
+[https://github.com/jgm/pandoc/releases/tag/1.19.2.1]
+
 ## Run the *psoriasis* vignette
 
 ```R
