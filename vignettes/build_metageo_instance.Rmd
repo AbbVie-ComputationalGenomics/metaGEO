@@ -73,10 +73,9 @@ Methods for obtaining the multi-GB `GEOmetadb.sqlite` file:
    
 ```{r 'get sqlite db', eval=T}
   GEOmetadb_loc <- "../data/GEOmetadb.sqlite.gz"
-	library(GEOmetadb)
+  library(GEOmetadb)
   if (!file.exists(GEOmetadb_loc)) {
-  download.file('https://gbnci-abcc.ncifcrf.gov/geo/GEOmetadb.sqlite.gz', GEOmetadb_loc)
-  gunzip('../data/GEOmetadb.sqlite.gz', destname = '../data/GEOmetadb_sqlite')
+    getSQLiteFile(destdir="../data", destfile="GEOmetadb.sqlite.gz")
   }
 ```
 
