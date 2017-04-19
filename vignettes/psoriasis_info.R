@@ -53,7 +53,7 @@ columnList <- list(
 #  etc...
 regexList <- list(
   c('^uninvolved skin from cases', '^involved skin from cases', 'XXX', 'controls'),
-  c('Skin biopsy, non-lesional', 'Skin biopsy, lesional', 'XXX', 'Skin biopsy normal'),
+  c('Skin biopsy, non-lesional', 'Skin biopsy, lesional', 'XXX', 'Skin biopsy, normal'),
   c('non-involved skin', 'Lesional skin, psoriasis', 'Lesional skin, eczema', 'XXX')
 )
 
