@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+<meta name="date" content="2017-04-19" />
+
+<title>Build a metageo instance</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Build a metageo instance</h1>
+<h4 class="date"><em>2017-04-19</em></h4>
+
+
+
+<p>This vignette demonstrates how to build a metaGEO instance from a set of GEO Series (GSEs) - in this case all investigating a common disease: <em>psoriasis</em>.</p>
+<p>In order to compare multiple studies, metaGEO aims to empower a user to define their own phenotype groupings and apply them accross GSEs and their unique, and otherwise uncontrolled metadata vocabulary. For instance, one GSE may label control samples as <em>“tissue, unaffected”</em>, whereas another might state simply <em>“control”</em>. The following process will create common groupings for these otherwise disparate metadata.</p>
+<p>The process consists of 3 phases:</p>
+<ol style="list-style-type: decimal">
+<li>Define a GSE set of interest, collect each set’s data, and investigate the diversity of the phenotype data.</li>
+<li>Generate user-defined groupings to form collections of like-samples across the GSEs</li>
+<li>Deploy the metaGEO R-shiny app to provide a means of querying and visualizing the expression between groupings.</li>
+</ol>
+<p>When building your own metaGEO instance, it is recommended to start by turning off (i.e. set <code>eval=F</code>) all code chunks after the <strong>Groupings</strong> section. Build the vignette partially, to the point where you have enough metadata to build the groupings in the accompanying <code>psoriasis_info.R</code> file. Then, start turning on the <strong>Grouping</strong> sections and re-rendering this markdown while tuning the column selections and regex definitions to capture as many of the samples as possible.</p>
+<p>Finally, save the resulting metaGEO object, and deploy it within the R-shiny app.</p>
+<hr />
+<div id="obtain-gse-data-and-investigate-phenotype-metadata" class="section level1">
+<h1>1. Obtain GSE data and investigate phenotype metadata</h1>
+<div id="load-libraries" class="section level3">
+<h3>Load libraries</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(devtools)
+<span class="kw">library</span>(gdata)
+<span class="kw">library</span>(dbConnect)
+<span class="kw">library</span>(RSQLite)
+<span class="kw">library</span>(GEOmetadb)
+<span class="kw">library</span>(xtable)
+<span class="kw">source</span>(<span class="st">'../R/GetData.R'</span>)
+<span class="kw">library</span>(knitr)</code></pre></div>
+</div>
+<div id="load-the-instance-specific-data-from-the-_info.r-file" class="section level3">
+<h3>Load the instance-specific data from the <code>*_info.R</code> file</h3>
+<p>This file must contain the following objects:</p>
+<ol style="list-style-type: decimal">
+<li><code>data_filename</code> - name of the resulting Rdata file</li>
+<li><p><code>datasets</code> - character vector of GSE IDs:</p>
+<pre><code>datasets &lt;- c('GSE1234', 'GSE4321')</code></pre></li>
+<li><p><code>group_names</code> - character vector of names of groupings:</p>
+<pre><code>group_names &lt;- c('1. Normal Tissue', '2. Diseased Tissue', 3. Other')</code></pre></li>
+<li><p><code>columnList</code> - list of phenoData column names that contain metadata to be associated with group_names:</p>
+<pre><code>columnlist &lt;- list('description', 'description', 'characteristics_ch1')</code></pre></li>
+<li><p><code>regexList</code> - list of regexes to be applied to the specified <code>columnList</code> that will place each GSE into the expected groups. Use <code>'XXX'</code> for unmatched pairings:</p>
+<pre><code>regexList &lt;- list(c('tissue:normal', 'tissue:diseased', 'XXX'), c('XXX', 'normal tissue', 'unidentified tissue'))</code></pre>
+<p>Please use the included <code>psoriasis_info.R</code> as an example</p></li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">source</span>(<span class="st">'psoriasis_info.R'</span>)</code></pre></div>
+</div>
+<div id="load-the-geometadb.sqlite-data-and-specify-a-list-of-genes-to-check-for-probeset-existance-across-platforms." class="section level3">
+<h3>load the GEOmetadb.sqlite data, and specify a list of genes to check for probeset existance across platforms.</h3>
+<p>Methods for obtaining the multi-GB <code>GEOmetadb.sqlite</code> file:</p>
+<ol style="list-style-type: decimal">
+<li>downloaded from [<a href="https://gbnci-abcc.ncifcrf.gov/geo/" class="uri">https://gbnci-abcc.ncifcrf.gov/geo/</a>]</li>
+<li>pulled with <code>GEOmetadb</code>:</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  GEOmetadb_loc &lt;-<span class="st"> &quot;../data/GEOmetadb.sqlite&quot;</span>
+  <span class="kw">library</span>(GEOmetadb)
+  <span class="cf">if</span> (<span class="op">!</span><span class="kw">file.exists</span>(GEOmetadb_loc)) {
+    <span class="kw">getSQLiteFile</span>(<span class="dt">destdir=</span><span class="st">&quot;../data&quot;</span>, <span class="dt">destfile=</span><span class="st">&quot;GEOmetadb.sqlite.gz&quot;</span>)
+  } <span class="cf">else</span> {
+    <span class="kw">print</span>(<span class="st">&quot;../data/GEOmetadb.sqlite exists.&quot;</span>)
+  }</code></pre></div>
+<pre><code>## [1] &quot;../data/GEOmetadb.sqlite exists.&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">GEOmetadb_loc &lt;-<span class="st"> &quot;../data/GEOmetadb.sqlite&quot;</span>
+genes &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'BRCA1'</span>, <span class="st">'CTCF'</span>, <span class="st">'BRCA2'</span>)</code></pre></div>
+</div>
+<div id="download-datasets-if-not-done-before-otherwise-load-predownloaded-data" class="section level3">
+<h3>Download datasets if not done before, otherwise load predownloaded data</h3>
+<p>Any GSE failues due to non-standard annotation may require this file to be deleted and re-generated as the list of datasets is curated. Turning off this chunk once the datasets are finalized will save some time as multiple renderings may be required to complete the process.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span>(<span class="kw">class</span>(data) <span class="op">!=</span><span class="st"> 'list'</span>) {
+  <span class="cf">if</span> (<span class="op">!</span><span class="kw">file.exists</span>(data_filename)) {
+    data &lt;-<span class="st"> </span><span class="kw">getGSEs</span>(datasets)
+    data &lt;-<span class="st"> </span><span class="kw">unlist</span>(data, <span class="dt">recursive =</span> F)
+    <span class="kw">names</span>(data) &lt;-<span class="st"> </span>datasets <span class="co">#Shiny code needs this to be named like this</span>
+    <span class="kw">save.image</span>(data_filename)
+  } <span class="cf">else</span>{
+    <span class="kw">load</span>(data_filename)
+  }
+}</code></pre></div>
+<pre><code>## https://ftp.ncbi.nlm.nih.gov/geo/series/GSE13nnn/GSE13355/matrix/</code></pre>
+<pre><code>## OK</code></pre>
+<pre><code>## Found 1 file(s)</code></pre>
+<pre><code>## GSE13355_series_matrix.txt.gz</code></pre>
+<pre><code>## Using locally cached version: /var/folders/_r/xpcyz5k50rb5jcgwm8xq4jtxb3pslv/T//Rtmp7rjQLa/GSE13355_series_matrix.txt.gz</code></pre>
+<pre><code>## Using locally cached version of GPL570 found here:
+## /var/folders/_r/xpcyz5k50rb5jcgwm8xq4jtxb3pslv/T//Rtmp7rjQLa/GPL570.soft</code></pre>
+<pre><code>## Warning in read.table(file = file, header = header, sep = sep, quote =
+## quote, : not all columns named in 'colClasses' exist</code></pre>
+<pre><code>## [1] &quot;Dataset: GSE13355 returned: 1&quot;</code></pre>
+<pre><code>## https://ftp.ncbi.nlm.nih.gov/geo/series/GSE14nnn/GSE14905/matrix/</code></pre>
+<pre><code>## OK</code></pre>
+<pre><code>## Found 1 file(s)</code></pre>
+<pre><code>## GSE14905_series_matrix.txt.gz</code></pre>
+<pre><code>## Using locally cached version: /var/folders/_r/xpcyz5k50rb5jcgwm8xq4jtxb3pslv/T//Rtmp7rjQLa/GSE14905_series_matrix.txt.gz</code></pre>
+<pre><code>## Using locally cached version of GPL570 found here:
+## /var/folders/_r/xpcyz5k50rb5jcgwm8xq4jtxb3pslv/T//Rtmp7rjQLa/GPL570.soft</code></pre>
+<pre><code>## Warning in read.table(file = file, header = header, sep = sep, quote =
+## quote, : not all columns named in 'colClasses' exist</code></pre>
+<pre><code>## [1] &quot;Dataset: GSE14905 returned: 1&quot;</code></pre>
+<pre><code>## https://ftp.ncbi.nlm.nih.gov/geo/series/GSE57nnn/GSE57225/matrix/</code></pre>
+<pre><code>## OK</code></pre>
+<pre><code>## Found 1 file(s)</code></pre>
+<pre><code>## GSE57225_series_matrix.txt.gz</code></pre>
+<pre><code>## Using locally cached version: /var/folders/_r/xpcyz5k50rb5jcgwm8xq4jtxb3pslv/T//Rtmp7rjQLa/GSE57225_series_matrix.txt.gz</code></pre>
+<pre><code>## Using locally cached version of GPL14550 found here:
+## /var/folders/_r/xpcyz5k50rb5jcgwm8xq4jtxb3pslv/T//Rtmp7rjQLa/GPL14550.soft</code></pre>
+<pre><code>## Warning in read.table(file = file, header = header, sep = sep, quote =
+## quote, : not all columns named in 'colClasses' exist</code></pre>
+<pre><code>## [1] &quot;Dataset: GSE57225 returned: 1&quot;</code></pre>
+</div>
+<div id="list-of-geo-series-and-their-respective-platforms.-some-may-need-special-handling-or-removal-due-to-non-standard-annotation." class="section level3">
+<h3>List of GEO series, and their respective platforms. Some may need special handling or removal due to non-standard annotation.</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">gpls &lt;-<span class="st"> </span><span class="kw">getGPLs</span>(data)</code></pre></div>
+<pre><code>## ExpressionSet (storageMode: lockedEnvironment)
+## assayData: 54675 features, 180 samples 
+##   element names: exprs 
+## protocolData: none
+## phenoData
+##   sampleNames: GSM337197 GSM337198 ... GSM337376 (180 total)
+##   varLabels: title geo_accession ... relation (33 total)
+##   varMetadata: labelDescription
+## featureData
+##   featureNames: 1007_s_at 1053_at ... AFFX-TrpnX-M_at (54675
+##     total)
+##   fvarLabels: ID GB_ACC ... Gene Ontology Molecular Function (16
+##     total)
+##   fvarMetadata: Column Description labelDescription
+## experimentData: use 'experimentData(object)'
+## Annotation: GPL570</code></pre>
+<pre><code>## Using locally cached version of GPL570 found here:
+## /var/folders/_r/xpcyz5k50rb5jcgwm8xq4jtxb3pslv/T//Rtmp7rjQLa/GPL570.soft</code></pre>
+<pre><code>## Warning in read.table(file = file, header = header, sep = sep, quote =
+## quote, : not all columns named in 'colClasses' exist</code></pre>
+<pre><code>## ExpressionSet (storageMode: lockedEnvironment)
+## assayData: 54675 features, 82 samples 
+##   element names: exprs 
+## protocolData: none
+## phenoData
+##   sampleNames: GSM372286 GSM372287 ... GSM372367 (82 total)
+##   varLabels: title geo_accession ... data_row_count (35 total)
+##   varMetadata: labelDescription
+## featureData
+##   featureNames: 1007_s_at 1053_at ... AFFX-TrpnX-M_at (54675
+##     total)
+##   fvarLabels: ID GB_ACC ... Gene Ontology Molecular Function (16
+##     total)
+##   fvarMetadata: Column Description labelDescription
+## experimentData: use 'experimentData(object)'
+## Annotation: GPL570</code></pre>
+<pre><code>## Using locally cached version of GPL570 found here:
+## /var/folders/_r/xpcyz5k50rb5jcgwm8xq4jtxb3pslv/T//Rtmp7rjQLa/GPL570.soft</code></pre>
+<pre><code>## Warning in read.table(file = file, header = header, sep = sep, quote =
+## quote, : not all columns named in 'colClasses' exist</code></pre>
+<pre><code>## ExpressionSet (storageMode: lockedEnvironment)
+## assayData: 42044 features, 62 samples 
+##   element names: exprs 
+## protocolData: none
+## phenoData
+##   sampleNames: GSM1377461 GSM1377462 ... GSM1377522 (62 total)
+##   varLabels: title geo_accession ... relation (37 total)
+##   varMetadata: labelDescription
+## featureData
+##   featureNames: A_19_P00315452 A_19_P00315459 ... A_33_P3901921
+##     (42044 total)
+##   fvarLabels: ID SPOT_ID ... SEQUENCE (17 total)
+##   fvarMetadata: Column Description labelDescription
+## experimentData: use 'experimentData(object)'
+## Annotation: GPL14550</code></pre>
+<pre><code>## Using locally cached version of GPL14550 found here:
+## /var/folders/_r/xpcyz5k50rb5jcgwm8xq4jtxb3pslv/T//Rtmp7rjQLa/GPL14550.soft</code></pre>
+<pre><code>## Warning in read.table(file = file, header = header, sep = sep, quote =
+## quote, : not all columns named in 'colClasses' exist</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">allTitlesDF &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">lapply</span>(gpls, <span class="cf">function</span>(g) g<span class="op">@</span>header<span class="op">$</span>title))
+tAllTitles &lt;-<span class="st"> </span><span class="kw">t</span>(allTitlesDF)
+<span class="kw">colnames</span>(tAllTitles) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">'Platform'</span>)
+knitr<span class="op">::</span><span class="kw">kable</span>(tAllTitles)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">Platform</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GSE13355</td>
+<td align="left">[HG-U133_Plus_2] Affymetrix Human Genome U133 Plus 2.0 Array</td>
+</tr>
+<tr class="even">
+<td>GSE14905</td>
+<td align="left">[HG-U133_Plus_2] Affymetrix Human Genome U133 Plus 2.0 Array</td>
+</tr>
+<tr class="odd">
+<td>GSE57225</td>
+<td align="left">Agilent-028004 SurePrint G3 Human GE 8x60K Microarray (Probe Name Version)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="map-geo-platform-ids-with-bioconductor-annotation-packages." class="section level3">
+<h3>Map GEO platform IDs with bioconductor annotation packages.</h3>
+<p>Get a database matching GPL IDs to bioconductor packages.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">con &lt;-<span class="st"> </span><span class="kw">dbConnect</span>(<span class="kw">SQLite</span>(), GEOmetadb_loc)
+bioCdb &lt;-<span class="st"> </span><span class="kw">getBiocPlatformMap</span>(con, <span class="dt">bioc=</span><span class="st">'all'</span>)</code></pre></div>
+<p>Redefine matching using the bioconductor annotation databases for all genes in test set</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">AllGeneIndex &lt;-<span class="st"> </span><span class="kw">lapply</span>(genes, getSingleGeneIndex, data, bioCdb)</code></pre></div>
+<pre><code>## 'select()' returned 1:many mapping between keys and columns
+## 'select()' returned 1:many mapping between keys and columns</code></pre>
+<pre><code>## [1] &quot;warning: GSE57225 does not have a bioc database, gene to probe matches may be incorrect&quot;
+## [1] &quot;Does this look right?&quot;
+## [1] &quot;               ID             SPOT_ID        CONTROL_TYPE   REFSEQ      GB_ACC       GENE  GENE_SYMBOL   GENE_NAME                      UNIGENE_ID   ENSEMBL_ID   TIGR_ID   ACCESSION_STRING                                          CHROMOSOMAL_LOCATION      CYTOBAND      DESCRIPTION                                                                                 GO_ID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            SEQUENCE                                                     &quot;
+## [2] &quot;-------------  -------------  -------------  -------------  ----------  ----------  -----  ------------  -----------------------------  -----------  -----------  --------  --------------------------------------------------------  ------------------------  ------------  ------------------------------------------------------------------------------------------  -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  -------------------------------------------------------------&quot;
+## [3] &quot;A_23_P207400   A_23_P207400   A_23_P207400   FALSE          NM_007300   NM_007300     672  BRCA1         breast cancer 1, early onset   Hs.194143                 NA        ref|NM_007300|ref|NM_007294|ref|NM_007297|ref|NM_007299   chr17:41196481-41196422   hs|17q21.31   Homo sapiens breast cancer 1, early onset (BRCA1), transcript variant 2, mRNA [NM_007300]   GO:0000151(ubiquitin ligase complex)|GO:0000724(double-strand break repair via homologous recombination)|GO:0000794(condensed nuclear chromosome)|GO:0001726(ruffle)|GO:0003677(DNA binding)|GO:0003684(damaged DNA binding)|GO:0003713(transcription coactivator activity)|GO:0003723(RNA binding)|GO:0004842(ubiquitin-protein ligase activity)|GO:0005515(protein binding)|GO:0005622(intracellular)|GO:0005634(nucleus)|GO:0005654(nucleoplasm)|GO:0005737(cytoplasm)|GO:0005759(mitochondrial matrix)|GO:0005886(plasma membrane)|GO:0005925(focal adhesion)|GO:0006260(DNA replication)|GO:0006281(DNA repair)|GO:0006301(postreplication repair)|GO:0006302(double-strand break repair)|GO:0006310(DNA recombination)|GO:0006357(regulation of transcription from RNA polymerase II promoter)|GO:0006359(regulation of transcription from RNA polymerase III promoter)|GO:0006915(apoptosis)|GO:0006974(response to DNA damage stimulus)|GO:0006978(DNA damage response, signal transduction by p53 class mediator resulting in transcription of p21 class mediator)|GO:0007049(cell cycle)|GO:0007059(chromosome segregation)|GO:0007098(centrosome cycle)|GO:0007420(brain development)|GO:0007584(response to nutrient)|GO:0008270(zinc ion binding)|GO:0008274(gamma-tubulin ring complex)|GO:0008630(DNA damage response, signal transduction resulting in induction of apoptosis)|GO:0009048(dosage compensation, by inactivation of X chromosome)|GO:0010212(response to ionizing radiation)|GO:0015631(tubulin binding)|GO:0016567(protein ubiquitination)|GO:0016874(ligase activity)|GO:0019899(enzyme binding)|GO:0030521(androgen receptor signaling pathway)|GO:0030529(ribonucleoprotein complex)|GO:0031398(positive regulation of protein ubiquitination)|GO:0031436(BRCA1-BARD1 complex)|GO:0031572(G2/M transition DNA damage checkpoint)|GO:0031625(ubiquitin protein ligase binding)|GO:0031941(filamentous actin)|GO:0032355(response to estradiol stimulus)|GO:0033993(response to lipid)|GO:0034446(substrate adhesion-dependent cell spreading)|GO:0035066(positive regulation of histone acetylation)|GO:0042127(regulation of cell proliferation)|GO:0042981(regulation of apoptosis)|GO:0043009(chordate embryonic development)|GO:0043234(protein complex)|GO:0043627(response to estrogen stimulus)|GO:0044212(transcription regulatory region DNA binding)|GO:0045717(negative regulation of fatty acid biosynthetic process)|GO:0045739(positive regulation of DNA repair)|GO:0045892(negative regulation of transcription, DNA-dependent)|GO:0045893(positive regulation of transcription, DNA-dependent)|GO:0045944(positive regulation of transcription from RNA polymerase II promoter)|GO:0046600(negative regulation of centriole replication)|GO:0046872(metal ion binding)|GO:0050681(androgen receptor binding)|GO:0051571(positive regulation of histone H3-K4 methylation)|GO:0051573(negative regulation of histone H3-K9 methylation)|GO:0051865(protein autoubiquitination)|GO:0070512(positive regulation of histone H4-K20 methylation)|GO:0070531(BRCA1-A complex)|GO:0071158(positive regulation of cell cycle arrest)|GO:0071681(cellular response to indole-3-methanol)|GO:0085020(protein K6-linked ubiquitination)   AAGTGTTTTTCATAAACCCATTATCCAGGACTGTTTATAGCTGTTGGAAGGACTAGGTCT &quot;</code></pre>
+<pre><code>## 'select()' returned 1:1 mapping between keys and columns</code></pre>
+<pre><code>## 'select()' returned 1:1 mapping between keys and columns</code></pre>
+<pre><code>## [1] &quot;warning: GSE57225 does not have a bioc database, gene to probe matches may be incorrect&quot;
+## [1] &quot;Does this look right?&quot;
+## [1] &quot;               ID             SPOT_ID        CONTROL_TYPE   REFSEQ      GB_ACC        GENE  GENE_SYMBOL   GENE_NAME                                    UNIGENE_ID   ENSEMBL_ID        TIGR_ID   ACCESSION_STRING                                                 CHROMOSOMAL_LOCATION      CYTOBAND     DESCRIPTION                                                                                              GO_ID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            SEQUENCE                                                     &quot;
+## [2] &quot;-------------  -------------  -------------  -------------  ----------  ----------  ------  ------------  -------------------------------------------  -----------  ----------------  --------  ---------------------------------------------------------------  ------------------------  -----------  -------------------------------------------------------------------------------------------------------  -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  -------------------------------------------------------------&quot;
+## [3] &quot;A_24_P347704   A_24_P347704   A_24_P347704   FALSE          NM_006565   NM_006565    10664  CTCF          CCCTC-binding factor (zinc finger protein)   Hs.368367    ENST00000264010   NA        ref|NM_006565|ref|NM_001191022|ens|ENST00000264010|gb|BC014267   chr16:67672114-67672173   hs|16q22.1   Homo sapiens CCCTC-binding factor (zinc finger protein) (CTCF), transcript variant 1, mRNA [NM_006565]   GO:0000775(chromosome, centromeric region)|GO:0000793(condensed chromosome)|GO:0003700(sequence-specific DNA binding transcription factor activity)|GO:0003714(transcription corepressor activity)|GO:0005622(intracellular)|GO:0005634(nucleus)|GO:0005654(nucleoplasm)|GO:0005730(nucleolus)|GO:0006349(regulation of gene expression by genetic imprinting)|GO:0007059(chromosome segregation)|GO:0008270(zinc ion binding)|GO:0010216(maintenance of DNA methylation)|GO:0010628(positive regulation of gene expression)|GO:0016568(chromatin modification)|GO:0016584(nucleosome positioning)|GO:0031060(regulation of histone methylation)|GO:0035065(regulation of histone acetylation)|GO:0040029(regulation of gene expression, epigenetic)|GO:0040030(regulation of molecular function, epigenetic)|GO:0043035(chromatin insulator sequence binding)|GO:0043565(sequence-specific DNA binding)|GO:0044212(transcription regulatory region DNA binding)|GO:0045892(negative regulation of transcription, DNA-dependent)|GO:0045893(positive regulation of transcription, DNA-dependent)|GO:0046872(metal ion binding)|GO:0070602(regulation of centromeric sister chromatid cohesion)   CCAGAGTTCTATGGTCTTCTTCCCAAGAGAGTTTTTAATTGTAAATGCATACTTGGGAAG &quot;</code></pre>
+<pre><code>## 'select()' returned 1:many mapping between keys and columns</code></pre>
+<pre><code>## 'select()' returned 1:many mapping between keys and columns</code></pre>
+<pre><code>## [1] &quot;warning: GSE57225 does not have a bioc database, gene to probe matches may be incorrect&quot;
+## [1] &quot;Does this look right?&quot;
+## [1] &quot;              ID            SPOT_ID       CONTROL_TYPE   REFSEQ      GB_ACC       GENE  GENE_SYMBOL   GENE_NAME                      UNIGENE_ID   ENSEMBL_ID        TIGR_ID   ACCESSION_STRING                                                  CHROMOSOMAL_LOCATION      CYTOBAND     DESCRIPTION                                                           GO_ID                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      SEQUENCE                                                     &quot;
+## [2] &quot;------------  ------------  ------------  -------------  ----------  ----------  -----  ------------  -----------------------------  -----------  ----------------  --------  ----------------------------------------------------------------  ------------------------  -----------  --------------------------------------------------------------------  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  -------------------------------------------------------------&quot;
+## [3] &quot;A_23_P99452   A_23_P99452   A_23_P99452   FALSE          NM_000059   NM_000059     675  BRCA2         breast cancer 2, early onset   Hs.34012     ENST00000380152   NA        ref|NM_000059|ens|ENST00000380152|ens|ENST00000544455|gb|U43746   chr13:32972996-32973055   hs|13q13.1   Homo sapiens breast cancer 2, early onset (BRCA2), mRNA [NM_000059]   GO:0000724(double-strand break repair via homologous recombination)|GO:0002020(protease binding)|GO:0003677(DNA binding)|GO:0003697(single-stranded DNA binding)|GO:0004402(histone acetyltransferase activity)|GO:0005515(protein binding)|GO:0005634(nucleus)|GO:0005654(nucleoplasm)|GO:0005730(nucleolus)|GO:0005737(cytoplasm)|GO:0005813(centrosome)|GO:0006281(DNA repair)|GO:0006289(nucleotide-excision repair)|GO:0006302(double-strand break repair)|GO:0006310(DNA recombination)|GO:0007049(cell cycle)|GO:0007090(regulation of S phase of mitotic cell cycle)|GO:0007283(spermatogenesis)|GO:0007584(response to nutrient)|GO:0010484(H3 histone acetyltransferase activity)|GO:0010485(H4 histone acetyltransferase activity)|GO:0030141(stored secretory granule)|GO:0030879(mammary gland development)|GO:0031619(homologous chromosome orientation involved in meiotic metaphase I plate congression)|GO:0032355(response to estradiol stimulus)|GO:0033205(cell cycle cytokinesis)|GO:0033593(BRCA2-MAGE-D1 complex)|GO:0033600(negative regulation of mammary gland epithelial cell proliferation)|GO:0035264(multicellular organism growth)|GO:0043015(gamma-tubulin binding)|GO:0043234(protein complex)|GO:0043966(histone H3 acetylation)|GO:0043967(histone H4 acetylation)|GO:0045893(positive regulation of transcription, DNA-dependent)|GO:0051298(centrosome duplication)   TATGTTGCACAATGAGAAAAGAAATTAGTTTCAAATTTACCTCAGCGTTTGTGTATCGGG &quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(AllGeneIndex) &lt;-<span class="st"> </span>genes</code></pre></div>
+<p>Summary of the probe/gene matches made for each gene and each study. Evaluate sets that have zero probes for the given genes - the platform is indicated.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sumdata&lt;-<span class="kw">sapply</span>(AllGeneIndex, <span class="cf">function</span>(gene) <span class="kw">sapply</span>(gene<span class="op">$</span>indices, length))
+sumdata &lt;-<span class="st"> </span><span class="kw">cbind</span>(sumdata, tAllTitles[,<span class="dv">1</span>])
+<span class="kw">colnames</span>(sumdata) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">colnames</span>(sumdata)[<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(genes)], <span class="st">'Platform'</span>)
+knitr<span class="op">::</span><span class="kw">kable</span>(sumdata)</code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">BRCA1</th>
+<th align="left">CTCF</th>
+<th align="left">BRCA2</th>
+<th align="left">Platform</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GSE13355</td>
+<td align="left">2</td>
+<td align="left">1</td>
+<td align="left">2</td>
+<td align="left">[HG-U133_Plus_2] Affymetrix Human Genome U133 Plus 2.0 Array</td>
+</tr>
+<tr class="even">
+<td>GSE14905</td>
+<td align="left">2</td>
+<td align="left">1</td>
+<td align="left">2</td>
+<td align="left">[HG-U133_Plus_2] Affymetrix Human Genome U133 Plus 2.0 Array</td>
+</tr>
+<tr class="odd">
+<td>GSE57225</td>
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="left">1</td>
+<td align="left">Agilent-028004 SurePrint G3 Human GE 8x60K Microarray (Probe Name Version)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="classify-into-different-groups-based-on-text-matching-to-metadata-in-geo" class="section level3">
+<h3>Classify into different groups based on text matching to metadata in GEO</h3>
+<p>Inspect the unique metadata elements for each GSE to decide which columns you will use to define the custom groups. The most commonly used columns <strong>start with</strong> <strong><code>source</code></strong>, <strong><code>character</code></strong>, or <strong><code>description</code></strong>, and are parsed out here for readability; although this list can be adjusted if it is not sufficiently inclusive.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">seq_along</span>(datasets)) {
+  pheno_cols &lt;-<span class="st"> </span><span class="kw">unlist</span>(gdata<span class="op">::</span><span class="kw">matchcols</span>(data[[i]]<span class="op">@</span>phenoData<span class="op">@</span>data,
+                                        <span class="dt">with =</span> <span class="kw">c</span>(<span class="st">'source'</span>, <span class="st">'character'</span>, <span class="st">'description'</span>),
+                                        <span class="dt">method =</span> <span class="st">'or'</span>
+                                       )
+                      )
+  pd_list &lt;-<span class="st"> </span>data[[i]]<span class="op">@</span>phenoData<span class="op">@</span>data[,pheno_cols]
+  uniq_cols &lt;-<span class="st"> </span><span class="kw">lapply</span>(pd_list, levels)
+  condensed_list &lt;-<span class="st"> </span><span class="kw">lapply</span>(uniq_cols, <span class="cf">function</span>(h) {<span class="kw">paste</span>(h, <span class="dt">collapse=</span><span class="st">'</span><span class="ch">\n</span><span class="st">'</span>)})
+  mat &lt;-<span class="st"> </span><span class="kw">matrix</span>(condensed_list, <span class="dt">ncol=</span><span class="kw">length</span>(condensed_list), <span class="dt">byrow=</span><span class="ot">TRUE</span>)
+  html_table &lt;-<span class="st"> </span>knitr<span class="op">::</span><span class="kw">kable</span>(mat, 
+                             <span class="dt">format=</span><span class="st">'html'</span>, 
+                             <span class="dt">pad=</span><span class="dv">1</span>,
+                             <span class="dt">align=</span><span class="st">'l'</span>,
+                             <span class="dt">col.names=</span><span class="kw">names</span>(condensed_list),
+                             <span class="dt">caption=</span><span class="kw">paste0</span>(<span class="st">&quot;Unique column values for &quot;</span>, datasets[i]))
+  <span class="co"># extra formatting to each table</span>
+  html_table &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">'&lt;caption&gt;'</span>, <span class="st">'&lt;caption style=&quot;text-align: -webkit-left; font-size: 16px; background-color: grey; color: white;&quot;&gt;'</span>, html_table)
+  <span class="co"># separate unique values by a space for readability</span>
+  html_table &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">'</span><span class="ch">\n</span><span class="st">'</span>, <span class="st">'</span><span class="ch">\n\n</span><span class="st">'</span>, html_table)
+  <span class="co"># align each set of values to the top of the table</span>
+  html_table &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">'&lt;tr&gt;'</span>, <span class="st">'&lt;tr valign=&quot;top&quot;&gt;'</span>, html_table)
+  <span class="kw">print</span>(html_table)
+  <span class="kw">cat</span>(<span class="st">'&lt;br&gt;'</span>)
+}</code></pre></div>
+<table>
+<caption style="text-align: -webkit-left; font-size: 16px; background-color: grey; color: white;">
+Unique column values for GSE13355
+</caption>
+<thead>
+<tr valign="top">
+<th style="text-align:left;">
+source_name_ch1
+</th>
+<th style="text-align:left;">
+characteristics_ch1
+</th>
+<th style="text-align:left;">
+description
+</th>
+</tr>
+</thead>
+<tbody>
+<tr valign="top">
+<td style="text-align:left;">
+skin_tissue
+</td>
+<td style="text-align:left;">
+<p>involved skin from cases</p>
+<p>normal skin from controls</p>
+uninvolved skin from cases
+</td>
+<td style="text-align:left;">
+<p>3059.PN</p>
+<p>3059.PP</p>
+<p>3140.PN</p>
+<p>3140.PP</p>
+<p>3171.PN</p>
+<p>3171.PP</p>
+<p>3586.PN</p>
+<p>3586.PP</p>
+<p>3591.PN</p>
+<p>3591.PP</p>
+<p>3690.PN</p>
+<p>3690.PP</p>
+<p>3777.PN</p>
+<p>3777.PP</p>
+<p>3822.PN</p>
+<p>3822.PP</p>
+<p>3937.PN</p>
+<p>3937.PP</p>
+<p>3983.PN</p>
+<p>3983.PP</p>
+<p>3992.PN</p>
+<p>3992.PP</p>
+<p>4079.PN</p>
+<p>4079.PP</p>
+<p>4089.PN</p>
+<p>4089.PP</p>
+<p>4093.PN</p>
+<p>4093.PP</p>
+<p>4124.NN</p>
+<p>4136.PN</p>
+<p>4136.PP</p>
+<p>4160.PN</p>
+<p>4160.PP</p>
+<p>4162.PN</p>
+<p>4162.PP</p>
+<p>4163.PN</p>
+<p>4163.PP</p>
+<p>4164.PN</p>
+<p>4164.PP</p>
+<p>4165.PN</p>
+<p>4165.PP</p>
+<p>4177.PN</p>
+<p>4177.PP</p>
+<p>4208.PN</p>
+<p>4208.PP</p>
+<p>4213.PN</p>
+<p>4213.PP</p>
+<p>4216.PN</p>
+<p>4216.PP</p>
+<p>4247.PN</p>
+<p>4247.PP</p>
+<p>4257.PN</p>
+<p>4257.PP</p>
+<p>4269.PN</p>
+<p>4269.PP</p>
+<p>4284.PN</p>
+<p>4284.PP</p>
+<p>4288.NN</p>
+<p>4294.PN</p>
+<p>4294.PP</p>
+<p>4298.PN</p>
+<p>4298.PP</p>
+<p>4334.PN</p>
+<p>4334.PP</p>
+<p>4339.PN</p>
+<p>4339.PP</p>
+<p>4344.PN</p>
+<p>4344.PP</p>
+<p>4356.PN</p>
+<p>4356.PP</p>
+<p>4362.PN</p>
+<p>4362.PP</p>
+<p>4368.PN</p>
+<p>4368.PP</p>
+<p>4378.NN</p>
+<p>4379.NN</p>
+<p>4382.NN</p>
+<p>4389.PN</p>
+<p>4389.PP</p>
+<p>4391.NN</p>
+<p>4394.NN</p>
+<p>4397.PN</p>
+<p>4397.PP</p>
+<p>4426.PN</p>
+<p>4426.PP</p>
+<p>4503.PN</p>
+<p>4503.PP</p>
+<p>4505.PN</p>
+<p>4505.PP</p>
+<p>4598.NN</p>
+<p>4607.NN</p>
+<p>4609.PN</p>
+<p>4609.PP</p>
+<p>4616.PN</p>
+<p>4616.PP</p>
+<p>4618.NN</p>
+<p>4626.NN</p>
+<p>4641.NN</p>
+<p>4649.NN</p>
+<p>4688.PN</p>
+<p>4688.PP</p>
+<p>4689.NN</p>
+<p>4697.PN</p>
+<p>4697.PP</p>
+<p>4708.NN</p>
+<p>4778.NN</p>
+<p>4874.NN</p>
+<p>4908.NN</p>
+<p>4934.PN</p>
+<p>4934.PP</p>
+<p>4935.NN</p>
+<p>4952.NN</p>
+<p>4968.NN</p>
+<p>4977.NN</p>
+<p>4981.NN</p>
+<p>4990.NN</p>
+<p>4992.NN</p>
+<p>4999.NN</p>
+<p>5008.NN</p>
+<p>5023.NN</p>
+<p>5030.NN</p>
+<p>5050.NN</p>
+<p>5063.NN</p>
+<p>5079.NN</p>
+<p>5093.NN</p>
+<p>511.PN</p>
+<p>511.PP</p>
+<p>5142.NN</p>
+<p>5143.NN</p>
+<p>5144.NN</p>
+<p>5147.NN</p>
+<p>5177.PN</p>
+<p>5177.PP</p>
+<p>5223.NN</p>
+<p>5242.PN</p>
+<p>5242.PP</p>
+<p>5243.NN</p>
+<p>5247.NN</p>
+<p>5248.NN</p>
+<p>5256.NN</p>
+<p>5257.NN</p>
+<p>5258.PN</p>
+<p>5258.PP</p>
+<p>5281.NN</p>
+<p>5292.NN</p>
+<p>5293.NN</p>
+<p>5295.NN</p>
+<p>5305.NN</p>
+<p>5324.NN</p>
+<p>5325.PN</p>
+<p>5325.PP</p>
+<p>5331.PN</p>
+<p>5331.PP</p>
+<p>5346.NN</p>
+<p>5414.PN</p>
+<p>5414.PP</p>
+<p>5575.NN</p>
+<p>5579.NN</p>
+<p>5660.NN</p>
+<p>5749.NN</p>
+<p>5815.NN</p>
+<p>582.PN</p>
+<p>582.PP</p>
+<p>5839.NN</p>
+<p>5844.NN</p>
+<p>5849.PN</p>
+<p>5849.PP</p>
+<p>5883.NN</p>
+<p>5905.NN</p>
+<p>5919.NN</p>
+<p>5935.NN</p>
+<p>5936.NN</p>
+<p>5942.NN</p>
+<p>649.PN</p>
+<p>649.PP</p>
+<p>777.PN</p>
+<p>777.PP</p>
+<p>953.PN</p>
+<p>953.PP</p>
+999027.NN
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<table>
+<caption style="text-align: -webkit-left; font-size: 16px; background-color: grey; color: white;">
+Unique column values for GSE14905
+</caption>
+<thead>
+<tr valign="top">
+<th style="text-align:left;">
+source_name_ch1
+</th>
+<th style="text-align:left;">
+characteristics_ch1
+</th>
+<th style="text-align:left;">
+characteristics_ch1.1
+</th>
+<th style="text-align:left;">
+description
+</th>
+</tr>
+</thead>
+<tbody>
+<tr valign="top">
+<td style="text-align:left;">
+<p>Skin biopsy, lesional</p>
+<p>Skin biopsy, non-lesional</p>
+Skin biopsy, normal
+</td>
+<td style="text-align:left;">
+<p>disease: psoriasis</p>
+skin: normal
+</td>
+<td style="text-align:left;">
+<p>skin: lesional</p>
+skin: non-lesional
+</td>
+<td style="text-align:left;">
+HGU133 Plus array data
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<table>
+<caption style="text-align: -webkit-left; font-size: 16px; background-color: grey; color: white;">
+Unique column values for GSE57225
+</caption>
+<thead>
+<tr valign="top">
+<th style="text-align:left;">
+source_name_ch1
+</th>
+<th style="text-align:left;">
+characteristics_ch1
+</th>
+<th style="text-align:left;">
+characteristics_ch1.1
+</th>
+<th style="text-align:left;">
+characteristics_ch1.2
+</th>
+<th style="text-align:left;">
+characteristics_ch1.3
+</th>
+<th style="text-align:left;">
+characteristics_ch1.4
+</th>
+<th style="text-align:left;">
+description
+</th>
+<th style="text-align:left;">
+description.1
+</th>
+</tr>
+</thead>
+<tbody>
+<tr valign="top">
+<td style="text-align:left;">
+<p>Lesional skin, eczema</p>
+<p>Lesional skin, psoriasis</p>
+non-involved skin
+</td>
+<td style="text-align:left;">
+<p>individual: BA</p>
+<p>individual: BC</p>
+<p>individual: BS (31y)</p>
+<p>individual: BS (33y)</p>
+<p>individual: EP</p>
+<p>individual: HI</p>
+<p>individual: JB</p>
+<p>individual: KK</p>
+<p>individual: Klose</p>
+<p>individual: KP</p>
+<p>individual: LA</p>
+<p>individual: LI</p>
+<p>individual: Mattes</p>
+<p>individual: MM</p>
+<p>individual: MOF</p>
+<p>individual: MPG</p>
+<p>individual: SI</p>
+<p>individual: SM</p>
+<p>individual: SP</p>
+<p>individual: SS2</p>
+<p>individual: VI</p>
+<p>individual: WP</p>
+individual: ZA
+</td>
+<td style="text-align:left;">
+<p>disease state: control (non-involved)</p>
+<p>disease state: eczema</p>
+disease state: psoriasis
+</td>
+<td style="text-align:left;">
+tissue: skin
+</td>
+<td style="text-align:left;">
+<p>gender: female</p>
+gender: male
+</td>
+<td style="text-align:left;">
+<p>age: 20y</p>
+<p>age: 27y</p>
+<p>age: 31y</p>
+<p>age: 33y</p>
+<p>age: 35y</p>
+<p>age: 40y</p>
+<p>age: 41y</p>
+<p>age: 42y</p>
+<p>age: 43y</p>
+<p>age: 46y</p>
+<p>age: 48y</p>
+<p>age: 53y</p>
+<p>age: 55y</p>
+<p>age: 56y</p>
+<p>age: 58y</p>
+<p>age: 65y</p>
+age: 72y
+</td>
+<td style="text-align:left;">
+Gene expression
+</td>
+<td style="text-align:left;">
+<p>MQ_1</p>
+<p>MQ_10</p>
+<p>MQ_11</p>
+<p>MQ_12</p>
+<p>MQ_13</p>
+<p>MQ_14</p>
+<p>MQ_15</p>
+<p>MQ_16</p>
+<p>MQ_17</p>
+<p>MQ_18</p>
+<p>MQ_19</p>
+<p>MQ_2</p>
+<p>MQ_20</p>
+<p>MQ_21</p>
+<p>MQ_22</p>
+<p>MQ_23</p>
+<p>MQ_24</p>
+<p>MQ_25</p>
+<p>MQ_26</p>
+<p>MQ_27</p>
+<p>MQ_28</p>
+<p>MQ_29</p>
+<p>MQ_3</p>
+<p>MQ_30</p>
+<p>MQ_31</p>
+<p>MQ_32</p>
+<p>MQ_33</p>
+<p>MQ_34</p>
+<p>MQ_36</p>
+<p>MQ_37</p>
+<p>MQ_38</p>
+<p>MQ_39</p>
+<p>MQ_4</p>
+<p>MQ_40</p>
+<p>MQ_42</p>
+<p>MQ_43</p>
+<p>MQ_44</p>
+<p>MQ_45</p>
+<p>MQ_46</p>
+<p>MQ_47</p>
+<p>MQ_48</p>
+<p>MQ_49</p>
+<p>MQ_5</p>
+<p>MQ_50</p>
+<p>MQ_51</p>
+<p>MQ_52</p>
+<p>MQ_53</p>
+<p>MQ_54</p>
+<p>MQ_55</p>
+<p>MQ_56</p>
+<p>MQ_57</p>
+<p>MQ_58</p>
+<p>MQ_59</p>
+<p>MQ_6</p>
+<p>MQ_60</p>
+<p>MQ_61</p>
+<p>MQ_62</p>
+<p>MQ_63</p>
+<p>MQ_64</p>
+<p>MQ_7</p>
+<p>MQ_8</p>
+MQ_9
+</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<hr />
+</div>
+</div>
+<div id="groupings" class="section level1">
+<h1>2. Groupings</h1>
+<p>In this section, we show how to use the metageo package to define groups within each study. This is done by manually defining the columns and regexes that will be used to classify subjects into groups agnostic to metadata vocabulary from the comparable studies.</p>
+<div id="load-and-inspect-the-group-definitions" class="section level3">
+<h3>Load and inspect the group definitions:</h3>
+<p>If this step fails, make sure the columnList is accurate in the *_info.R file</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># group naming grid.  headings are the group_names, number of columns is the number of datasets</span>
+nameList &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">list</span>(group_names), <span class="kw">length</span>(data))
+groups &lt;-<span class="st"> </span><span class="kw">getGroupings</span>(data, columnList, regexList)
+<span class="kw">names</span>(groups) &lt;-<span class="st"> </span>datasets
+<span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(groups)) <span class="kw">names</span>(groups[[i]]) &lt;-<span class="st"> </span>nameList[[i]]</code></pre></div>
+</div>
+<div id="summary-stats-on-the-groupings" class="section level3">
+<h3>Summary stats on the groupings</h3>
+<div id="total-sample-counts-per-study" class="section level5">
+<h5>Total sample counts per study</h5>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">totals &lt;-<span class="st"> </span><span class="kw">lapply</span>(data, <span class="cf">function</span>(i) <span class="kw">nrow</span>(i<span class="op">@</span>phenoData<span class="op">@</span>data)[<span class="dv">1</span>])
+totalCounts &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="st">&quot;# Samples&quot;</span>, totals)
+<span class="kw">names</span>(totalCounts) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">''</span>, datasets)
+knitr<span class="op">::</span><span class="kw">kable</span>(totalCounts, <span class="dt">caption=</span><span class="st">&quot;Total sample counts per study&quot;</span>)</code></pre></div>
+<table>
+<caption>Total sample counts per study</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">GSE13355</th>
+<th align="right">GSE14905</th>
+<th align="right">GSE57225</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td># Samples</td>
+<td align="right">180</td>
+<td align="right">82</td>
+<td align="right">62</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="number-of-samples-per-study-attributed-to-each-user-defined-group" class="section level5">
+<h5>Number of samples per study attributed to each user-defined group</h5>
+<p>The column sums should equal the per-study totals above. If not, then double-check that the appropriate metadata column is used in <code>columnList</code>, and that the regex in <code>regexList</code> matches the unique values under that column.</p>
+<p>It is possible not all samples in the GSE will match the comparison profile for your metaGEO object, but if you encounter a <code>0</code> then there is likely an error in the <code>regexList</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sumtable &lt;-<span class="st"> </span><span class="kw">sapply</span>(groups, <span class="cf">function</span>(i) <span class="kw">sapply</span>(i, sum))
+sumtable &lt;-<span class="st"> </span><span class="kw">rbind</span>(sumtable, <span class="kw">colSums</span>(sumtable))
+<span class="kw">rownames</span>(sumtable) &lt;-<span class="st"> </span><span class="kw">c</span>(group_names, <span class="st">'Sum'</span>)
+knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">t</span>(sumtable), <span class="dt">caption=</span><span class="st">&quot;Sum of samples captured by the given regex&quot;</span>)</code></pre></div>
+<table>
+<caption>Sum of samples captured by the given regex</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">1. Psoriasis non-lesion</th>
+<th align="right">2. Psoriasis lesion</th>
+<th align="right">3. Disease Other</th>
+<th align="right">4. Healthy</th>
+<th align="right">Sum</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GSE13355</td>
+<td align="right">58</td>
+<td align="right">58</td>
+<td align="right">0</td>
+<td align="right">64</td>
+<td align="right">180</td>
+</tr>
+<tr class="even">
+<td>GSE14905</td>
+<td align="right">28</td>
+<td align="right">33</td>
+<td align="right">0</td>
+<td align="right">21</td>
+<td align="right">82</td>
+</tr>
+<tr class="odd">
+<td>GSE57225</td>
+<td align="right">17</td>
+<td align="right">22</td>
+<td align="right">23</td>
+<td align="right">0</td>
+<td align="right">62</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">regextable &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">matrix</span>(<span class="kw">unlist</span>(regexList), <span class="dt">nrow=</span><span class="kw">length</span>(datasets), <span class="dt">byrow=</span><span class="ot">TRUE</span>))
+<span class="kw">colnames</span>(regextable) &lt;-<span class="st"> </span>group_names
+<span class="kw">rownames</span>(regextable) &lt;-<span class="st"> </span>datasets
+knitr<span class="op">::</span><span class="kw">kable</span>(regextable, <span class="dt">caption=</span><span class="st">&quot;Regex grid as defined in *_info.R&quot;</span>)</code></pre></div>
+<table>
+<caption>Regex grid as defined in *_info.R</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">1. Psoriasis non-lesion</th>
+<th align="left">2. Psoriasis lesion</th>
+<th align="left">3. Disease Other</th>
+<th align="left">4. Healthy</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GSE13355</td>
+<td align="left">^uninvolved skin from cases</td>
+<td align="left">^involved skin from cases</td>
+<td align="left">XXX</td>
+<td align="left">controls</td>
+</tr>
+<tr class="even">
+<td>GSE14905</td>
+<td align="left">Skin biopsy, non-lesional</td>
+<td align="left">Skin biopsy, lesional</td>
+<td align="left">XXX</td>
+<td align="left">Skin biopsy, normal</td>
+</tr>
+<tr class="odd">
+<td>GSE57225</td>
+<td align="left">non-involved skin</td>
+<td align="left">Lesional skin, psoriasis</td>
+<td align="left">Lesional skin, eczema</td>
+<td align="left">XXX</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="save-the-metageo-object" class="section level1">
+<h1>Save the metaGEO object</h1>
+<p>At this point, you have generated an object with all the data as ExpressionSets, and the indices for accessing the correct gene and individuals in the defined group. Clean up some unneeded elements, and save the metaGEO object into the filename given in the <code>*_info.R</code> file.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(genes)
+<span class="kw">save.image</span>(data_filename)</code></pre></div>
+<p>Once this R object is made, you are ready to deploy the R-shiny app:</p>
+<hr />
+</div>
+<div id="deploy-the-metageo-r-shiny-app" class="section level1">
+<h1>3. Deploy the metaGEO R-shiny app</h1>
+<div id="move-or-copy-the-newly-construscted-metageo-object-to-the-shiny-app" class="section level3">
+<h3>Move or copy the newly construscted metaGEO object to the shiny app:</h3>
+<p><code>cp</code> or <code>mv</code> the <code>.Rdata</code> file, and change the working directory:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="op">&gt;</span><span class="kw">file.rename</span>(<span class="st">'ObjectWithGeoData_psoriasis.Rdata'</span>, <span class="st">'../inst/shiny-examples/data/ObjectWithGeoData_psoriasis.Rdata'</span>)
+<span class="op">&gt;</span><span class="kw">setwd</span>(..<span class="op">/</span>inst<span class="op">/</span>shiny<span class="op">-</span>examples<span class="op">/</span>)</code></pre></div>
+</div>
+<div id="start-an-r-session-and-run-the-app" class="section level3">
+<h3>Start an R session and run the app:</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="op">&gt;</span><span class="st"> </span><span class="kw">library</span>(shiny)
+<span class="op">&gt;</span><span class="st"> </span><span class="kw">runApp</span>(<span class="st">&quot;metaGEO&quot;</span>)</code></pre></div>
+<p>Instructions:</p>
+<ul>
+<li>Select a HUGO gene name from the drop-down menu</li>
+<li>Click <em>Scan Datasets</em> for metaGEO to automatically de-select from the list of GSEs those that do not contain probes for the gene of interest.</li>
+<li>Click <em>Generate Plots</em> to view the results</li>
+</ul>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

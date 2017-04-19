@@ -62,7 +62,7 @@ expected groups. Use `'XXX'` for unmatched pairings:
     regexList <- list(c('tissue:normal', 'tissue:diseased', 'XXX'), c('XXX', 'normal tissue', 'unidentified tissue'))
     ```
 Please use the included `psoriasis_info.R` as an example
-```{r 'Load instance specific data', eval=F}
+```{r 'Load instance specific data', eval=T}
 source('psoriasis_info.R')
 ```
 
@@ -72,7 +72,7 @@ Methods for obtaining the multi-GB `GEOmetadb.sqlite` file:
 1. downloaded from [https://gbnci-abcc.ncifcrf.gov/geo/]
 2. pulled with `GEOmetadb`:  
    
-```{r 'get sqlite db', eval=F}
+```{r 'get sqlite db', eval=T}
   GEOmetadb_loc <- "../data/GEOmetadb.sqlite"
   library(GEOmetadb)
   if (!file.exists(GEOmetadb_loc)) {
@@ -82,14 +82,14 @@ Methods for obtaining the multi-GB `GEOmetadb.sqlite` file:
   }
 ```
 
-```{r 'configurations, objects, and settings', eval=F}
+```{r 'configurations, objects, and settings', eval=T}
 GEOmetadb_loc <- "../data/GEOmetadb.sqlite"
 genes <- c('BRCA1', 'CTCF', 'BRCA2')
 ```
 
 ### Download datasets if not done before, otherwise load predownloaded data 
 Any GSE failues due to non-standard annotation may require this file to be deleted and re-generated as the list of datasets is curated.  Turning off this chunk once the datasets are finalized will save some time as multiple renderings may be required to complete the process.
-```{r 'Load existing Rdata, else re-download GSEs', eval=F}
+```{r 'Load existing Rdata, else re-download GSEs', eval=T}
 if(class(data) != 'list') {
   if (!file.exists(data_filename)) {
     data <- getGSEs(datasets)
@@ -103,7 +103,7 @@ if(class(data) != 'list') {
 ```
 
 ### List of GEO series, and their respective platforms.  Some may need special handling or removal due to non-standard annotation.
-```{r 'Get GPLs for GSEs and inspect Platform names', eval=F}
+```{r 'Get GPLs for GSEs and inspect Platform names', eval=T}
 gpls <- getGPLs(data)
 allTitlesDF <- as.data.frame(lapply(gpls, function(g) g@header$title))
 tAllTitles <- t(allTitlesDF)
@@ -115,20 +115,20 @@ knitr::kable(tAllTitles)
 
 Get a database matching GPL IDs to bioconductor packages.
 
-```{r 'Match GPL IDs to bioconductor packages', eval=F}
+```{r 'Match GPL IDs to bioconductor packages', eval=T}
 con <- dbConnect(SQLite(), GEOmetadb_loc)
 bioCdb <- getBiocPlatformMap(con, bioc='all')
 ```
 
 Redefine matching using the bioconductor annotation databases for all genes in test set
 
-```{r 'match genes to bioconductor annotation', warning=T, eval=F}
+```{r 'match genes to bioconductor annotation', warning=T, eval=T}
 AllGeneIndex <- lapply(genes, getSingleGeneIndex, data, bioCdb)
 names(AllGeneIndex) <- genes
 ```
 
 Summary of the probe/gene matches made for each gene and each study.  Evaluate sets that have zero probes for the given genes - the platform is indicated.
-```{r 'summarize probe matches', results='asis', eval=F}
+```{r 'summarize probe matches', results='asis', eval=T}
 sumdata<-sapply(AllGeneIndex, function(gene) sapply(gene$indices, length))
 sumdata <- cbind(sumdata, tAllTitles[,1])
 colnames(sumdata) <- c(colnames(sumdata)[1:length(genes)], 'Platform')
@@ -136,8 +136,9 @@ knitr::kable(sumdata)
 ```
 
 ### Classify into different groups based on text matching to metadata in GEO
-First glance at the metadata for each subject to decide which columns you will use to define classes:
-```{r show columns, results='asis', eval=F}
+Inspect the unique metadata elements for each GSE to decide which columns you will use to define the custom groups.  The most commonly used columns **start with** **`source`**, **`character`**, or **`description`**, and are parsed out here for readability; although this list can be adjusted if it is not sufficiently inclusive.
+
+```{r show columns, results='asis', eval=T}
 for (i in seq_along(datasets)) {
   pheno_cols <- unlist(gdata::matchcols(data[[i]]@phenoData@data,
                                         with = c('source', 'character', 'description'),
@@ -173,7 +174,7 @@ In this section, we show how to use the metageo package to define groups within 
 
 ### Load and inspect the group definitions:
 If this step fails, make sure the columnList is accurate in the *_info.R file
-```{r, 'Load and Inspect the Group Definitions', results='asis', eval=F}
+```{r, 'Load and Inspect the Group Definitions', results='asis', eval=T}
 # group naming grid.  headings are the group_names, number of columns is the number of datasets
 nameList <- rep(list(group_names), length(data))
 groups <- getGroupings(data, columnList, regexList)
@@ -183,7 +184,7 @@ for(i in 1:length(groups)) names(groups[[i]]) <- nameList[[i]]
 
 ### Summary stats on the groupings
 #####Total sample counts per study
-```{r 'summary stats', results='asis', eval=F}
+```{r 'summary stats', results='asis', eval=T}
 totals <- lapply(data, function(i) nrow(i@phenoData@data)[1])
 totalCounts <- data.frame("# Samples", totals)
 names(totalCounts) <- c('', datasets)
@@ -193,8 +194,8 @@ knitr::kable(totalCounts, caption="Total sample counts per study")
 ##### Number of samples per study attributed to each user-defined group
 The column sums should equal the per-study totals above.  If not, then double-check that the appropriate metadata column is used in `columnList`, and that the regex in `regexList` matches the unique values under that column.
 
-It is possible not all samples in the GSE will match the comparison profile for your metaGEO object, but if you encounter a Zero then there is likely an error in the `*_info.R` file.
-```{r 'group summary stats', results='asis', eval=F}
+It is possible not all samples in the GSE will match the comparison profile for your metaGEO object, but if you encounter a `0` then there is likely an error in the `regexList`.
+```{r 'group summary stats', results='asis', eval=T}
 sumtable <- sapply(groups, function(i) sapply(i, sum))
 sumtable <- rbind(sumtable, colSums(sumtable))
 rownames(sumtable) <- c(group_names, 'Sum')
@@ -209,7 +210,7 @@ knitr::kable(regextable, caption="Regex grid as defined in *_info.R")
 
 At this point, you have generated an object with all the data as ExpressionSets, and the indices for accessing the correct gene and individuals in the defined group. 
 Clean up some unneeded elements, and save the metaGEO object into the filename given in the `*_info.R` file.
-```{r 'cleanup and save object to file', eval=F}
+```{r 'cleanup and save object to file', eval=T}
 rm(genes)
 save.image(data_filename)
 ```
