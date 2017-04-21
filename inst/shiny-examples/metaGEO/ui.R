@@ -12,7 +12,7 @@ shinyUI(
     useShinyjs(),
     extendShinyjs(text=jsCode, functions='flip_checkbox'),
     # Give the page a title
-    titlePanel("Metageo: Plot gene expression across multiple GEO datasets"),
+    titlePanel("metaGEO: Plot gene expression across multiple GEO datasets"),
 	  h2(metageo_title),
     # Define the sidebar with two inputs
     sidebarLayout(
