@@ -36,8 +36,8 @@ https://github.com/jgm/pandoc/releases/tag/1.19.2.1
 
 
 ## General process flow
-![process_flow](metaGEO-flow.png "Process flow diagram")
-
+![process_flow](metaGEO_flow_small.png "Process flow diagram")
+[Download full-size .PDF](metaGEO-flow.pdf)
 
 ## Run the *psoriasis* vignette
 
