@@ -3,7 +3,7 @@
 Following this guide will build an example metaGEO app comparing multiple psoriasis studies.  More details on how to create a new metaGEO can be found by following the vignette.
 ### Clone this repository
 ```bash
-git clone git@pig.abbvienet.com:grundaj/CompGenomics-metaGEO.git
+git clone https://github.com/AbbVie-ComputationalGenomics/metaGEO.git
 ```
 ### Start an Rstudio session
 
