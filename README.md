@@ -42,7 +42,7 @@ https://github.com/jgm/pandoc/releases/tag/1.19.2.1
 ## Run the *psoriasis* vignette
 
 ```R
-setwd('CompGenomics-metaGEO/vignettes')
+setwd('metaGEO/vignettes')
 ```
 
 Perform the initial rendering (May take a few minutes depending on network speed):
